@@ -1,0 +1,122 @@
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import { NavLink, useNavigate } from 'react-router-dom';
+
+const Signup = () => {
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [role, setRole] = useState('student');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const toastId = toast.loading('Processing signup...');
+        if (name && email && password && role) {
+            setTimeout(() => {
+                toast.success('Signup successful! Please login.', {
+                    id: toastId,
+                    duration: 3000,
+                });
+                navigate('/login');
+            }, 2000);
+        } else {
+            toast.error('Please fill in all fields.', {
+                id: toastId,
+                duration: 3000,
+            });
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
+                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">Sign Up for EduManage</h2>
+                {error && (
+                    <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
+                )}
+                <div className="mb-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        Create an account as a student, teacher, or admin.
+                    </p>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                            Full Name
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Enter your full name"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Enter your email"
+                            required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            Password
+                        </label >
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Create a password"
+                            required
+                        />
+                    </div>
+                    <div className="mb-6">
+                        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                            Role
+                        </label>
+                        <select
+                            id="role"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className="mt-1 cursor-pointer w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                        >
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
+                    >
+                        Sign Up
+                    </button>
+                </form>
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
+                        Already have an account?{' '}
+                        <NavLink to="/login" className="text-teal-600 hover:text-teal-800 font-semibold">
+                            Login
+                        </NavLink>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Signup;
