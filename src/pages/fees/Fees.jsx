@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { NavLink } from 'react-router-dom';
 import { HiCurrencyRupee, HiDocumentDownload } from 'react-icons/hi';
 import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
