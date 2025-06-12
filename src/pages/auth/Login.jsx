@@ -18,7 +18,7 @@ const Login = () => {
                     duration: 3000,
                 });
                 navigate('/');
-            }, 1000);
+            }, 2000);
         } else {
             toast.error('Please fill in all fields.', {
                 id: toastId,

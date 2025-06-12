@@ -1,6 +1,5 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { HiUser, HiDocumentText, HiChartBar, HiBell, HiCheckCircle, HiUpload, HiPencilAlt, HiUserGroup, HiCurrencyDollar, HiSpeakerphone } from 'react-icons/hi';
+import { HiUser, HiDocumentText, HiChartBar, HiBell, HiCheckCircle, HiUpload, HiPencilAlt, HiUserGroup, HiSpeakerphone, HiCurrencyRupee } from 'react-icons/hi';
 
 const DashboardComponent = () => {
   const userRole = 'student'; // Can be 'student', 'teacher', or 'admin'
@@ -40,14 +39,14 @@ const DashboardComponent = () => {
       title: 'Welcome, Admin!',
       description: 'Oversee operations, manage fees, and promote your institution.',
       cards: [
-        { title: 'Fee Structure', path: '/fees', icon: <HiCurrencyDollar className="h-10 w-10 text-teal-600" />, description: 'Configure and manage fees.' },
+        { title: 'Fee Structure', path: '/fees', icon: <HiCurrencyRupee className="h-10 w-10 text-teal-600" />, description: 'Configure and manage fees.' },
         { title: 'Manage Users', path: '/users', icon: <HiUserGroup className="h-10 w-10 text-teal-600" />, description: 'Add or edit user accounts.' },
         { title: 'Promotions', path: '/promotions', icon: <HiSpeakerphone className="h-10 w-10 text-teal-600" />, description: 'Share announcements and media.' },
         { title: 'Reports', path: '/reports', icon: <HiChartBar className="h-10 w-10 text-teal-600" />, description: 'Generate performance reports.' },
       ],
       stats: [
         { title: 'Total Users', value: '150', progress: 90 },
-        { title: 'Fees Collected', value: '$5000', progress: 70 },
+        { title: 'Fees Collected', value: '₹5000', progress: 70 },
         { title: 'Active Promotions', value: '2', progress: 40 },
       ],
     },

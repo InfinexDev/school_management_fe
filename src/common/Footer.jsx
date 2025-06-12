@@ -38,7 +38,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <NavLink
-                  to="/dashboard"
+                  to="/"
                   className={({ isActive }) =>
                     `block text-white hover:text-teal-200 transition-all duration-300 ease-in-out transform hover:scale-105 ${
                       isActive ? 'text-teal-200 font-semibold' : ''
