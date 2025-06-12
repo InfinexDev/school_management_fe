@@ -5,6 +5,7 @@ import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
 import toast from 'react-hot-toast';
 
+
 const Fees = () => {
     const [userRole] = useState('admin'); // Can be 'student', 'teacher', or 'admin'
     const [feeStructure, setFeeStructure] = useState([
