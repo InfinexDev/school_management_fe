@@ -8,12 +8,92 @@ import toast from 'react-hot-toast';
 const Fees = () => {
     const [userRole] = useState('admin'); // Can be 'student', 'teacher', or 'admin'
     const [feeStructure, setFeeStructure] = useState([
-        { id: 1, class: 'Class 10', type: 'Tuition Fee', amount: 5000, dueDate: '2025-07-01', status: 'Pending' },
-        { id: 2, class: 'Class 10', type: 'Library Fee', amount: 1000, dueDate: '2025-07-01', status: 'Paid' },
+        {
+            id: 1,
+            studentName: 'Rahul Sharma',
+            rollNo: 'STU101',
+            class: 'Class 10',
+            section: 'A',
+            type: 'Tuition Fee',
+            amount: 5000,
+            dueDate: '2025-07-01',
+            status: 'Pending'
+        },
+        {
+            id: 2,
+            studentName: 'Priya Patel',
+            rollNo: 'STU102',
+            class: 'Class 10',
+            section: 'B',
+            type: 'Library Fee',
+            amount: 1000,
+            dueDate: '2025-07-01',
+            status: 'Paid'
+        },
+        {
+            id: 3,
+            studentName: 'Amit Singh',
+            rollNo: 'STU103',
+            class: 'Class 9',
+            section: 'C',
+            type: 'Sports Fee',
+            amount: 800,
+            dueDate: '2025-07-15',
+            status: 'Pending'
+        },
+        {
+            id: 4,
+            studentName: 'Neha Gupta',
+            rollNo: 'STU104',
+            class: 'Class 11',
+            section: 'A',
+            type: 'Lab Fee',
+            amount: 1200,
+            dueDate: '2025-06-20',
+            status: 'Paid'
+        }
     ]);
     const [paymentHistory, setPaymentHistory] = useState([
-        { id: 1, date: '2025-06-01', type: 'Tuition Fee', amount: 5000, status: 'Completed', method: 'QR Payment' },
-        { id: 2, date: '2025-05-15', type: 'Library Fee', amount: 1000, status: 'Completed', method: 'Online' },
+        {
+            id: 1,
+            studentName: 'Rahul Sharma',
+            rollNo: 'STU101',
+            date: '2025-06-01',
+            type: 'Tuition Fee',
+            amount: 5000,
+            status: 'Completed',
+            method: 'UPI'
+        },
+        {
+            id: 2,
+            studentName: 'Priya Patel',
+            rollNo: 'STU102',
+            date: '2025-05-15',
+            type: 'Library Fee',
+            amount: 1000,
+            status: 'Completed',
+            method: 'Net Banking'
+        },
+        {
+            id: 3,
+            studentName: 'Amit Singh',
+            rollNo: 'STU103',
+            date: '2025-05-10',
+            type: 'Transport Fee',
+            amount: 1500,
+            status: 'Completed',
+            method: 'Credit Card'
+        },
+        {
+            id: 4,
+            studentName: 'Neha Gupta',
+            rollNo: 'STU104',
+            date: '2025-06-05',
+            type: 'Lab Fee',
+            amount: 1200,
+            status: 'Failed',
+            method: 'Debit Card'
+        }
     ]);
 
     const handlePayNow = (feeId) => {
@@ -76,6 +156,20 @@ const Fees = () => {
                         <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
                             <h2 className="text-2xl font-bold text-gray-900 mb-4">Add New Fee Structure</h2>
                             <form onSubmit={handleAddFee} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label htmlFor="student" className="block text-sm font-medium text-gray-700">
+                                        Student
+                                    </label>
+                                    <select
+                                        id="student"
+                                        className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                        required
+                                    >
+                                        <option value="">Select Student</option>
+                                        <option value="STU2024001">Rahul Sharma (Class 10)</option>
+                                        <option value="STU2024002">Priya Patel (Class 9)</option>
+                                    </select>
+                                </div>
                                 <div>
                                     <label htmlFor="class" className="block text-sm font-medium text-gray-700">
                                         Class
@@ -140,6 +234,12 @@ const Fees = () => {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Student Name
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Roll No
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Class
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -164,6 +264,8 @@ const Fees = () => {
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {feeStructure.map((fee) => (
                                         <tr key={fee.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.studentName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.rollNo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.class}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.type}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{fee.amount}</td>
@@ -205,6 +307,12 @@ const Fees = () => {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            StudentName
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            RollNo
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Date
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -224,6 +332,8 @@ const Fees = () => {
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {paymentHistory.map((payment) => (
                                         <tr key={payment.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.studentName}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.rollNo}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.date}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.type}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount}</td>

@@ -16,7 +16,7 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <NavLink to="/" className="flex items-center space-x-2">
-              <img src={school_logo} className='rounded-full' width={"28%"} height={"28%"} alt='school_logo'/>
+              <img src={school_logo} className='rounded-full' width={"28%"} height={"28%"} alt='school_logo' />
             </NavLink>
           </div>
 
@@ -32,13 +32,13 @@ const Navbar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/fees"
+              to="/home"
               className={({ isActive }) =>
                 `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
             >
-              Fees
+              Home
             </NavLink>
             <NavLink
               to="/study-materials"
@@ -66,6 +66,15 @@ const Navbar = () => {
               }
             >
               Notifications
+            </NavLink>
+            <NavLink
+              to="/fees"
+              className={({ isActive }) =>
+                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                }`
+              }
+            >
+              Fees
             </NavLink>
             <NavLink
               to="/reports"

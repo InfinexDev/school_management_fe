@@ -1,31 +1,51 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { NavLink, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { setAuthTokens } from '../../utils/auth';
 
 const Signup = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [role, setRole] = useState('student');
+    const [phone, setPhone] = useState('');
+    const [address, setAddress] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const toastId = toast.loading('Processing signup...');
-        if (name && email && password && role) {
-            setTimeout(() => {
-                toast.success('Signup successful! Please login.', {
-                    id: toastId,
-                    duration: 3000,
-                });
-                navigate('/login');
-            }, 2000);
-        } else {
-            toast.error('Please fill in all fields.', {
+        try {
+            if (!name || !email || !password || !role) {
+                throw new Error('Please fill in all required fields.');
+            }
+            const response = await axios.post('/api/auth/register', {
+                name,
+                email,
+                password,
+                role,
+                phone,
+                address,
+            });
+            setAuthTokens({
+                accessToken: response?.data?.accessToken,
+                refreshToken: response?.data?.refreshToken,
+            });
+            // localStorage.setItem('userRole', role);
+            toast.success('Signup successful!', {
                 id: toastId,
                 duration: 3000,
             });
+            navigate('/');
+        } catch (error) {
+            const errorMessage = error?.response?.data?.message || error.message || 'Signup failed.';
+            toast.error(errorMessage, {
+                id: toastId,
+                duration: 3000,
+            });
+            setError(errorMessage);
         }
     };
 
@@ -38,7 +58,7 @@ const Signup = () => {
                 )}
                 <div className="mb-6 text-center">
                     <p className="text-sm text-gray-600">
-                        Create an account as a student, teacher, or admin.
+                        Create an account as a student, teacher, admin, or parent.
                     </p>
                 </div>
                 <form onSubmit={handleSubmit}>
@@ -73,7 +93,7 @@ const Signup = () => {
                     <div className="mb-4">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                             Password
-                        </label >
+                        </label>
                         <input
                             type="password"
                             id="password"
@@ -82,6 +102,31 @@ const Signup = () => {
                             className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
                             placeholder="Create a password"
                             required
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                            Phone
+                        </label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Enter your phone number"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                            Address
+                        </label>
+                        <textarea
+                            id="address"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Enter your address"
                         />
                     </div>
                     <div className="mb-6">
@@ -97,6 +142,7 @@ const Signup = () => {
                             <option value="student">Student</option>
                             <option value="teacher">Teacher</option>
                             <option value="admin">Admin</option>
+                            {/* <option value="parent">Parent</option> */}
                         </select>
                     </div>
                     <button

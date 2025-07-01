@@ -1,19 +1,42 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HiUser, HiPencilAlt, HiCheckCircle, HiMail, HiPhone } from 'react-icons/hi';
 import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
 import toast from 'react-hot-toast';
+import axios from 'axios';
+import { getAccessToken } from '../../utils/auth';
 
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [userData, setUserData] = useState({
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        phone: '+91 9876543210',
-        rollNumber: 'ST12345',
-        class: '10th Grade',
-        address: '123, Main Street, City, Country',
+        id: '',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
     });
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await axios.get('/api/auth/me', {
+                    headers: { Authorization: `Bearer ${getAccessToken()}` },
+                });
+                setUserData({
+                    id: response.data.id,
+                    name: response.data.name,
+                    email: response.data.email,
+                    phone: response.data.phone || '',
+                    address: response.data.address || '',
+                    role: response.data.role,
+                });
+            } catch (error) {
+                toast.error('Failed to load profile.', { duration: 3000 });
+            }
+        };
+        fetchProfile();
+    }, []);
+
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -24,19 +47,24 @@ const Profile = () => {
         setUserData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const toastId = toast.loading('Saving profile...');
-        if (userData.name && userData.email && userData.phone && userData.address) {
-            setTimeout(() => {
-                toast.success('Profile updated successfully!', {
-                    id: toastId,
-                    duration: 3000,
-                });
-                setIsEditing(false);
-            }, 2000);
-        } else {
-            toast.error('Please fill in all fields.', {
+        try {
+            if (!userData?.name || !userData?.email || !userData?.phone || !userData?.address) {
+                throw new Error('Please fill in all fields.');
+            }
+            await axios.put(`/api/auth/${userData?.id}`, userData, {
+                headers: { Authorization: `Bearer ${getAccessToken()}` },
+            });
+            toast.success('Profile updated successfully!', {
+                id: toastId,
+                duration: 3000,
+            });
+            setIsEditing(false);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to update profile.';
+            toast.error(errorMessage, {
                 id: toastId,
                 duration: 3000,
             });
@@ -63,77 +91,66 @@ const Profile = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                {isEditing ? (
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={userData.name}
-                                        onChange={handleInputChange}
-                                        className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                    />
-                                ) : (
-                                    <p className="mt-1 text-lg text-gray-900">{userData.name}</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Email</label>
-                                {isEditing ? (
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={userData.email}
-                                        onChange={handleInputChange}
-                                        className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                    />
-                                ) : (
-                                    <p className="mt-1 text-lg text-gray-900 flex items-center">
-                                        <HiMail className="h-5 w-5 text-teal-600 mr-2" /> {userData.email}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                {isEditing ? (
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        value={userData.phone}
-                                        onChange={handleInputChange}
-                                        className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                    />
-                                ) : (
-                                    <p className="mt-1 text-lg text-gray-900 flex items-center">
-                                        <HiPhone className="h-5 w-5 text-teal-600 mr-2" /> {userData.phone}
-                                    </p>
-                                )}
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={userData.name}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                />
+                            ) : (
+                                <p className="mt-1 text-lg text-gray-900">{userData.name}</p>
+                            )}
                         </div>
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Roll Number</label>
-                                <p className="mt-1 text-lg text-gray-900">{userData.rollNumber}</p>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Class</label>
-                                <p className="mt-1 text-lg text-gray-900">{userData.class}</p>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700">Address</label>
-                                {isEditing ? (
-                                    <textarea
-                                        name="address"
-                                        draggable="false"
-                                        value={userData.address}
-                                        onChange={handleInputChange}
-                                        className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                    />
-                                ) : (
-                                    <p className="mt-1 text-lg text-gray-900">{userData.address}</p>
-                                )}
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                            {isEditing ? (
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={userData.email}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                />
+                            ) : (
+                                <p className="mt-1 text-lg text-gray-900 flex items-center">
+                                    <HiMail className="h-5 w-5 text-teal-600 mr-2" /> {userData.email}
+                                </p>
+                            )}
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Phone</label>
+                            {isEditing ? (
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    value={userData.phone}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                />
+                            ) : (
+                                <p className="mt-1 text-lg text-gray-900 flex items-center">
+                                    <HiPhone className="h-5 w-5 text-teal-600 mr-2" /> {userData.phone}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Address</label>
+                            {isEditing ? (
+                                <textarea
+                                    name="address"
+                                    draggable="false"
+                                    value={userData.address}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                />
+                            ) : (
+                                <p className="mt-1 text-lg text-gray-900">{userData.address}</p>
+                            )}
                         </div>
                     </div>
 

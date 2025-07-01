@@ -1,6 +1,8 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { setAuthTokens } from '../../utils/auth';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -8,24 +10,34 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const toastId = toast.loading('Processing login...');
-        if (email && password) {
-            setTimeout(() => {
-                toast.success('Login successful!', {
-                    id: toastId,
-                    duration: 3000,
-                });
-                navigate('/');
-            }, 2000);
-        } else {
-            toast.error('Please fill in all fields.', {
+        try {
+            if (!email || !password) {
+                throw new Error('Please fill in all fields.');
+            }
+            const response = await axios.post('/api/auth/login', { email, password });
+            setAuthTokens({
+                accessToken: response?.data?.accessToken,
+                refreshToken: response?.data?.refreshToken,
+            });
+            localStorage.setItem('userRole', response?.data?.user?.role);
+            toast.success('Login successful!', {
                 id: toastId,
                 duration: 3000,
             });
+            navigate('/');
+        } catch (error) {
+            const errorMessage = error?.response?.data?.message || error.message || 'Login failed.';
+            toast.error(errorMessage, {
+                id: toastId,
+                duration: 3000,
+            });
+            setError(errorMessage);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
