@@ -18,7 +18,6 @@ const Attendance = () => {
     { id: 1, student: 'John Doe', class: 'Class 10', reason: 'Medical', from: '2025-06-11', to: '2025-06-12', status: 'Pending' },
   ]);
 
-  // Fetch userRole from localStorage and data from APIs
   useEffect(() => {
     const storedRole = localStorage.getItem('userRole');
     if (storedRole) {
