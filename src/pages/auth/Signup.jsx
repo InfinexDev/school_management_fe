@@ -11,6 +11,7 @@ const Signup = () => {
     const [role, setRole] = useState('student');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
+    const [className, setClassName] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -18,7 +19,7 @@ const Signup = () => {
         e.preventDefault();
         const toastId = toast.loading('Processing signup...');
         try {
-            if (!name || !email || !password || !role) {
+            if (!name || !email || !password || !role || (role === 'student' && !className)) {
                 throw new Error('Please fill in all required fields.');
             }
             const response = await axios.post('/api/auth/register', {
@@ -28,6 +29,7 @@ const Signup = () => {
                 role,
                 phone,
                 address,
+                class: className,
             });
             setAuthTokens({
                 accessToken: response?.data?.accessToken,
@@ -38,7 +40,7 @@ const Signup = () => {
                 id: toastId,
                 duration: 3000,
             });
-            navigate('/');
+            navigate('/login');
         } catch (error) {
             const errorMessage = error?.response?.data?.message || error.message || 'Signup failed.';
             toast.error(errorMessage, {
@@ -141,9 +143,39 @@ const Signup = () => {
                         >
                             <option value="student">Student</option>
                             <option value="teacher">Teacher</option>
-                            <option value="admin">Admin</option>
+                            {/* <option value="admin">Admin</option> */}
                             {/* <option value="parent">Parent</option> */}
                         </select>
+                    </div>
+                    <div className="mb-4">
+                        {role === 'student' && (
+                            <>
+                                <label htmlFor="class" className="block text-sm font-medium text-gray-700">
+                                    Class
+                                </label>
+                                <select
+                                    id="class"
+                                    value={className}
+                                    onChange={(e) => setClassName(e.target.value)}
+                                    className="mt-1 cursor-pointer w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                    required
+                                >
+                                    <option value="">Select Class</option>
+                                    <option value="Class 1">Class 1</option>
+                                    <option value="Class 2">Class 2</option>
+                                    <option value="Class 3">Class 3</option>
+                                    <option value="Class 4">Class 4</option>
+                                    <option value="Class 5">Class 5</option>
+                                    <option value="Class 6">Class 6</option>
+                                    <option value="Class 7">Class 7</option>
+                                    <option value="Class 8">Class 8</option>
+                                    <option value="Class 9">Class 9</option>
+                                    <option value="Class 10">Class 10</option>
+                                    <option value="Class 11">Class 11</option>
+                                    <option value="Class 12">Class 12</option>
+                                </select>
+                            </>
+                        )}
                     </div>
                     <button
                         type="submit"

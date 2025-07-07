@@ -6,6 +6,17 @@ import Footer from '../../common/Footer';
 import axios from 'axios';
 
 const StudyMaterials = () => {
+  const classes = [
+    'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
+    'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
+    'Class 11', 'Class 12'
+  ];
+  const subjects = [
+    'Mathematics', 'Science', 'English', 'Social Studies',
+    'Hindi', 'Physics', 'Chemistry', 'Biology', 'History',
+    'Geography', 'Computer Science'
+  ];
+
   const [userRole, setUserRole] = useState('teacher'); // Adjust based on auth context
   const [materials, setMaterials] = useState([]);
   const [scheduledTopics, setScheduledTopics] = useState([]);
@@ -297,7 +308,7 @@ const StudyMaterials = () => {
             </div>
           ) : (
             <>
-              {userRole === 'teacher' && (
+              {(userRole === 'teacher' || userRole === 'admin') && (
                 <>
                   <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Upload Study Material</h2>
@@ -306,27 +317,33 @@ const StudyMaterials = () => {
                         <label htmlFor="class" className="block text-sm font-medium text-gray-700">
                           Class
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="class"
                           name="class"
                           className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                          placeholder="Enter class (e.g., Class 10)"
                           required
-                        />
+                        >
+                          <option value="" disabled selected>Select class</option>
+                          {classes.map((cls) => (
+                            <option key={cls} value={cls}>{cls}</option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
                           Subject
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="subject"
                           name="subject"
                           className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                          placeholder="Enter subject (e.g., Math)"
                           required
-                        />
+                        >
+                          <option value="" disabled selected>Select subject</option>
+                          {subjects.map((sub) => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label htmlFor="type" className="block text-sm font-medium text-gray-700">
@@ -386,27 +403,33 @@ const StudyMaterials = () => {
                         <label htmlFor="class" className="block text-sm font-medium text-gray-700">
                           Class
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="class"
                           name="class"
                           className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                          placeholder="Enter class (e.g., Class 10)"
                           required
-                        />
+                        >
+                          <option value="" disabled selected>Select class</option>
+                          {classes.map((cls) => (
+                            <option key={cls} value={cls}>{cls}</option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
                           Subject
                         </label>
-                        <input
-                          type="text"
+                        <select
                           id="subject"
                           name="subject"
                           className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                          placeholder="Enter subject (e.g., Math)"
                           required
-                        />
+                        >
+                          <option value="" disabled selected>Select subject</option>
+                          {subjects.map((sub) => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <label htmlFor="topic" className="block text-sm font-medium text-gray-700">

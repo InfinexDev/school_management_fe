@@ -27,7 +27,7 @@ const Login = () => {
                 id: toastId,
                 duration: 3000,
             });
-            navigate('/');
+            navigate('/home');
         } catch (error) {
             const errorMessage = error?.response?.data?.message || error.message || 'Login failed.';
             toast.error(errorMessage, {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Set base URL for Axios
-axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_API_URL || 'http://localhost:5000';
+axios.defaults.baseURL = import.meta.env.VITE_REACT_APP_API_URL;
 
 // Store tokens in localStorage
 export const setAuthTokens = ({ accessToken, refreshToken }) => {

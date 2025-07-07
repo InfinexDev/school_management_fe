@@ -1,33 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HiUpload, HiVideoCamera, HiPhotograph, HiDocumentText } from 'react-icons/hi';
 import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const Promotions = () => {
-  const [userRole] = useState('admin'); // Can be 'student', 'teacher', or 'admin'
-  const [promotions, setPromotions] = useState([
-    {
-      id: 1,
-      type: 'Video',
-      title: 'School Annual Event 2025',
-      description: 'Highlights of our annual cultural event.',
-      url: '#',
-      uploadedBy: 'Admin',
-      date: '2025-06-10',
-    },
-    {
-      id: 2,
-      type: 'PDF',
-      title: 'Admission Brochure',
-      description: 'Details for new student admissions.',
-      url: '#',
-      uploadedBy: 'Admin',
-      date: '2025-06-09',
-    },
-  ]);
+  const [userRole] = useState(localStorage.getItem('userRole') || 'student');
+  const [promotions, setPromotions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleUploadPromotion = (e) => {
+  useEffect(() => {
+    const fetchPromotions = async () => {
+      try {
+        const response = await axios.get('/api/promotions', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        console.log('Promotions Response:', JSON.stringify(response.data, null, 2));
+        setPromotions(response?.data?.promotions || []);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Fetch promotions error:', error);
+        console.error('Error response:', JSON.stringify(error.response?.data, null, 2));
+        setError('Failed to fetch promotions. Please try again later.');
+        toast.error(error.response?.data?.message || 'Failed to fetch promotions', {
+          style: {
+            background: '#ef4444',
+            color: '#ffffff',
+            fontWeight: '600',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          },
+          duration: 4000,
+        });
+        setIsLoading(false);
+      }
+    };
+
+    fetchPromotions();
+  }, []);
+
+  const handleUploadPromotion = async (e) => {
     e.preventDefault();
     const toastId = toast.loading('Uploading promotional content...', {
       style: {
@@ -41,17 +56,21 @@ const Promotions = () => {
       iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
     });
 
-    setTimeout(() => {
-      const newPromotion = {
-        id: promotions.length + 1,
-        type: e.target.type.value,
-        title: e.target.title.value,
-        description: e.target.description.value,
-        url: '#', // Placeholder for actual file URL
-        uploadedBy: 'Admin',
-        date: new Date().toISOString().split('T')[0],
-      };
-      setPromotions([...promotions, newPromotion]);
+    try {
+      const formData = new FormData();
+      formData.append('type', e.target.type.value);
+      formData.append('title', e.target.title.value);
+      formData.append('description', e.target.description.value);
+      formData.append('file', e.target.file.files[0]);
+
+      const response = await axios.post('/api/promotions', formData, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setPromotions([...promotions, response.data.promotion]);
       e.target.reset();
       toast.success('Promotional content uploaded successfully!', {
         id: toastId,
@@ -66,7 +85,21 @@ const Promotions = () => {
         iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
         duration: 3000,
       });
-    }, 2000);
+    } catch (error) {
+      console.error('Upload promotion error:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload promotion', {
+        id: toastId,
+        style: {
+          background: '#ef4444',
+          color: '#ffffff',
+          fontWeight: '600',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+        duration: 4000,
+      });
+    }
   };
 
   return (
@@ -120,6 +153,18 @@ const Promotions = () => {
                     required
                   ></textarea>
                 </div>
+                <div className="col-span-1 sm:col-span-2">
+                  <label htmlFor="file" className="block text-sm font-medium text-gray-700">
+                    Upload File
+                  </label>
+                  <input
+                    type="file"
+                    id="file"
+                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                    accept="video/mp4,image/jpeg,image/png,application/pdf"
+                    required
+                  />
+                </div>
                 <button
                   type="submit"
                   className="col-span-1 sm:col-span-2 bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
@@ -133,35 +178,47 @@ const Promotions = () => {
 
           <div className="bg-white p-6 rounded-xl shadow-lg">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Promotional Content</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {promotions.map((promotion) => (
-                    <tr key={promotion.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{promotion.date}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {promotion.type === 'Video' && <HiVideoCamera className="h-5 w-5 text-teal-600 inline mr-2" />}
-                        {promotion.type === 'Image' && <HiPhotograph className="h-5 w-5 text-teal-600 inline mr-2" />}
-                        {promotion.type === 'PDF' && <HiDocumentText className="h-5 w-5 text-teal-600 inline mr-2" />}
-                        {promotion.type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{promotion.title}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{promotion.description}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{promotion.uploadedBy}</td>
+            {isLoading ? (
+              <div className="text-center text-gray-600">Loading...</div>
+            ) : error ? (
+              <div className="text-center text-red-600">{error}</div>
+            ) : promotions.length === 0 ? (
+              <div className="text-center text-gray-600">No promotions available</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {promotions.map((promotion) => (
+                      <tr key={promotion.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{promotion.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {promotion.type === 'Video' && <HiVideoCamera className="h-5 w-5 text-teal-600 inline mr-2" />}
+                          {promotion.type === 'Image' && <HiPhotograph className="h-5 w-5 text-teal-600 inline mr-2" />}
+                          {promotion.type === 'PDF' && <HiDocumentText className="h-5 w-5 text-teal-600 inline mr-2" />}
+                          {promotion.type}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <a href={promotion.url} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline">
+                            {promotion.title}
+                          </a>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{promotion.description}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{promotion.uploadedBy}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -10,16 +10,12 @@ const Attendance = () => {
   // Add state for loading and error
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [students, setStudents] = useState([
-    { id: 1, name: 'John Doe', class: 'Class 10', status: 'Present', date: '2025-06-10' },
-    { id: 2, name: 'Jane Smith', class: 'Class 10', status: 'Absent', date: '2025-06-10' },
-  ]);
-  const [leaveRequests, setLeaveRequests] = useState([
-    { id: 1, student: 'John Doe', class: 'Class 10', reason: 'Medical', from: '2025-06-11', to: '2025-06-12', status: 'Pending' },
-  ]);
+  const [students, setStudents] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
 
   useEffect(() => {
     const storedRole = localStorage.getItem('userRole');
+    console.log('User Role:', storedRole);
     if (storedRole) {
       setUserRole(storedRole);
     } else {
@@ -44,6 +40,7 @@ const Attendance = () => {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           },
         });
+        console.log('Students Data:', response?.data?.attendance);
         setStudents(response?.data?.attendance || []);
       } catch (error) {
         console.error('Fetch attendance error:', error);
@@ -307,7 +304,7 @@ const Attendance = () => {
             </div>
           ) : (
             <>
-              {userRole === 'teacher' && (
+              {(userRole === 'teacher' || userRole === 'admin') && (
                 <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Mark Attendance</h2>
                   {students?.length === 0 ? (
@@ -431,7 +428,7 @@ const Attendance = () => {
                 </div>
               )}
 
-              {userRole === 'teacher' && (
+              {(userRole === 'teacher' || userRole === 'admin') && (
                 <div className="bg-white p-6 rounded-xl shadow-lg">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Leave Requests</h2>
                   {leaveRequests.length === 0 ? (

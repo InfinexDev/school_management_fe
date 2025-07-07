@@ -16,96 +16,134 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <NavLink to="/" className="flex items-center space-x-2">
-              <img src={school_logo} className='rounded-full' width={"28%"} height={"28%"} alt='school_logo' />
+              {localStorage.getItem('accessToken') ? (
+                <> <img src={school_logo} className='rounded-full w-24 h-12' alt='school_logo' /></>
+              ) : (
+                <> <img src={school_logo} className='rounded-full w-24 h-12' alt='school_logo' /></>
+              )}
             </NavLink>
+
+            {!localStorage.getItem('accessToken') && (
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  `hidden md:flex text-white ml-4 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                  }`
+                }
+              >
+                Home
+              </NavLink>
+            )}
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Dashboard
-            </NavLink>
-            <NavLink
-              to="/home"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Home
-            </NavLink>
-            <NavLink
-              to="/study-materials"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Study Materials
-            </NavLink>
-            <NavLink
-              to="/attendance"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Attendance
-            </NavLink>
-            <NavLink
-              to="/notifications"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Notifications
-            </NavLink>
-            <NavLink
-              to="/fees"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Fees
-            </NavLink>
-            <NavLink
-              to="/reports"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Reports
-            </NavLink>
-            <NavLink
-              to="/promotions"
-              className={({ isActive }) =>
-                `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
-                }`
-              }
-            >
-              Promotions
-            </NavLink>
-            <NavLink
-              to="/login"
-              className="text-white bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
-            >
-              Login
-            </NavLink>
-            <NavLink
-              to="/signup"
-              className="text-white whitespace-nowrap bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
-            >
-              Sign Up
-            </NavLink>
+          <div className={`hidden md:flex items-center space-x-4`}>
+            {localStorage.getItem('accessToken') && (
+              <NavLink
+                to="/home"
+                className={({ isActive }) =>
+                  `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                  }`
+                }
+              >
+                Home
+              </NavLink>
+            )}
+            {localStorage.getItem('accessToken') ? (
+              <>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/study-materials"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Study Materials
+                </NavLink>
+                <NavLink
+                  to="/attendance"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Attendance
+                </NavLink>
+                <NavLink
+                  to="/notifications"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Notifications
+                </NavLink>
+                <NavLink
+                  to="/fees"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Fees
+                </NavLink>
+                <NavLink
+                  to="/reports"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Reports
+                </NavLink>
+                <NavLink
+                  to="/promotions"
+                  className={({ isActive }) =>
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    }`
+                  }
+                >
+                  Promotions
+                </NavLink>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                    localStorage.removeItem('userRole');
+                    window.location.href = '/home';
+                  }}
+                  className="text-white cursor-pointer bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <div className='flex items-center gap-2'>
+                  <NavLink
+                    to="/login"
+                    className="text-white bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                  >
+                    Login
+                  </NavLink>
+                  <NavLink
+                    to="/signup"
+                    className="text-white whitespace-nowrap bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                  >
+                    Sign Up
+                  </NavLink>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
