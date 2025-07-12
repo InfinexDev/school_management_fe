@@ -7,24 +7,47 @@ import axios from 'axios';
 
 const Reports = () => {
   const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'student');
+  const [reportType, setReportType] = useState('Academic');
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFormLoading, setIsFormLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [classOptions] = useState([
+    'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6',
+    'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
+  ]);
+  const [subjectOptions] = useState([
+    'Mathematics', 'Science', 'English', 'Social Studies', 'Hindi', 'Computer Science',
+  ]);
+  const [studentOptions, setStudentOptions] = useState([]);
 
   useEffect(() => {
-    const fetchReports = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('/api/reports', {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        console.log('Reports Response:', JSON.stringify(response.data, null, 2));
-        setReports(response?.data?.reports || []);
+        setIsLoading(true);
+        const requests = [
+          axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/reports`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+          }),
+          axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/users/students`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+          }),
+        ];
+
+        const responses = await Promise.all(requests);
+        const [reportsResponse, studentsResponse] = responses;
+
+        console.log('Reports Response:', JSON.stringify(reportsResponse.data, null, 2));
+        console.log('Students Response:', JSON.stringify(studentsResponse.data, null, 2));
+        setReports(reportsResponse?.data?.reports || []);
+        setStudentOptions(studentsResponse?.data?.students || []);
         setIsLoading(false);
       } catch (error) {
-        console.error('Fetch reports error:', error);
+        console.error('Fetch data error:', error);
         console.error('Error response:', JSON.stringify(error.response?.data, null, 2));
-        setError('Failed to fetch reports. Please try again later.');
-        toast.error(error.response?.data?.message || 'Failed to fetch reports', {
+        setError('Failed to fetch data. Please try again later.');
+        toast.error(error.response?.data?.message || 'Failed to fetch data', {
           style: {
             background: '#ef4444',
             color: '#ffffff',
@@ -39,11 +62,84 @@ const Reports = () => {
       }
     };
 
-    fetchReports();
+    fetchData();
   }, []);
+
+  const formatDate = (dateString) => {
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-GB', options);
+  };
+
+  const sortData = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+
+    const sortedReports = [...reports].sort((a, b) => {
+      if (key === 'marks') {
+        return direction === 'asc' ? (a[key] || 0) - (b[key] || 0) : (b[key] || 0) - (a[key] || 0);
+      }
+      if (key === 'date') {
+        return direction === 'asc'
+          ? new Date(a[key]) - new Date(b[key])
+          : new Date(b[key]) - new Date(a[key]);
+      }
+      return direction === 'asc'
+        ? (a[key] || '').localeCompare(b[key] || '')
+        : (b[key] || '').localeCompare(a[key] || '');
+    });
+    setReports(sortedReports);
+  };
 
   const handleGenerateReport = async (e) => {
     e.preventDefault();
+    const type = e.target.type.value;
+    const studentId = e.target.student.value;
+    const className = e.target.class.value;
+    const subject = type === 'Academic' ? e.target.subject.value : '';
+    const marks = type === 'Academic' ? parseInt(e.target.marks.value) : '';
+    const attendance = type === 'Attendance' ? e.target.attendance.value : '';
+
+    if (type === 'Academic' && (!subject || !marks)) {
+      toast.error('Subject and marks are required for Academic reports', {
+        style: {
+          background: '#ef4444',
+          color: '#ffffff',
+          fontWeight: '600',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+        duration: 4000,
+      });
+      return;
+    }
+    if (type === 'Attendance' && !attendance) {
+      toast.error('Attendance is required for Attendance reports', {
+        style: {
+          background: '#ef4444',
+          color: '#ffffff',
+          fontWeight: '600',
+          padding: '12px 20px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        },
+        duration: 4000,
+      });
+      return;
+    }
+
+    const student = studentOptions.find(s => s._id === studentId)?.name || 'Unknown';
+    const confirmAdd = window.confirm(
+      `Generate ${type} report for ${student} in ${className}?`
+    );
+    if (!confirmAdd) {
+      return;
+    }
+
+    setIsFormLoading(true);
     const toastId = toast.loading('Generating report...', {
       style: {
         background: '#0f766e',
@@ -58,14 +154,14 @@ const Reports = () => {
 
     try {
       const response = await axios.post(
-        '/api/reports',
+        `${import.meta.env.VITE_REACT_APP_API_URL}/api/reports`,
         {
-          type: e.target.type.value,
-          student: e.target.student.value,
-          class: e.target.class.value,
-          subject: e.target.type.value === 'Academic' ? e.target.subject.value : '',
-          marks: e.target.type.value === 'Academic' ? parseInt(e.target.marks.value) : '',
-          attendance: e.target.type.value === 'Attendance' ? e.target.attendance.value : '',
+          type,
+          studentId,
+          class: className,
+          subject,
+          marks,
+          attendance,
         },
         {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
@@ -100,6 +196,8 @@ const Reports = () => {
         },
         duration: 4000,
       });
+    } finally {
+      setIsFormLoading(false);
     }
   };
 
@@ -117,7 +215,7 @@ const Reports = () => {
     });
 
     try {
-      const response = await axios.get(`/api/reports/export/${reportId}`, {
+      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/reports/export/${reportId}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
         responseType: 'blob',
       });
@@ -161,146 +259,248 @@ const Reports = () => {
   return (
     <div>
       <Navbar />
-      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gradient-to-b from-teal-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-10 text-center drop-shadow-md">
             Reports & Performance Tracking
           </h1>
 
-          {(userRole === 'admin' || userRole === 'teacher') && (
-            <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Generate Report</h2>
-              <form onSubmit={handleGenerateReport} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-                    Report Type
-                  </label>
-                  <select
-                    id="type"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    required
-                  >
-                    <option value="Academic">Academic</option>
-                    <option value="Attendance">Attendance</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="student" className="block text-sm font-medium text-gray-700">
-                    Student Name
-                  </label>
-                  <input
-                    type="text"
-                    id="student"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    placeholder="Enter student name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="class" className="block text-sm font-medium text-gray-700">
-                    Class
-                  </label>
-                  <input
-                    type="text"
-                    id="class"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    placeholder="Enter class (e.g., Class 10)"
-                    required
-                  />
-                </div>
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
-                    Subject (for Academic)
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    placeholder="Enter subject (e.g., Math)"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="marks" className="block text-sm font-medium text-gray-700">
-                    Marks (for Academic)
-                  </label>
-                  <input
-                    type="number"
-                    id="marks"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    placeholder="Enter marks"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="attendance" className="block text-sm font-medium text-gray-700">
-                    Attendance % (for Attendance)
-                  </label>
-                  <input
-                    type="text"
-                    id="attendance"
-                    className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                    placeholder="Enter attendance (e.g., 90%)"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="col-span-1 sm:col-span-2 bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
+          {isLoading ? (
+            <div className='h-[60vh] flex items-center justify-center'>
+              <div
+                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
+              >
+                <span
+                  class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
                 >
-                  <HiChartBar className="h-5 w-5 inline mr-2" />
-                  Generate Report
-                </button>
-              </form>
-            </div>
-          )}
-
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Report History</h2>
-            {isLoading ? (
-              <div className="text-center text-gray-600">Loading...</div>
-            ) : error ? (
-              <div className="text-center text-red-600">{error}</div>
-            ) : reports.length === 0 ? (
-              <div className="text-center text-gray-600">No reports found</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marks</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {reports.map((report) => (
-                      <tr key={report.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.date}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.type}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.student}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.class}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.subject || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.marks || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.attendance || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <button
-                            onClick={() => handleExportReport(report.id)}
-                            className="bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
-                          >
-                            <HiDocumentDownload className="h-5 w-5 mr-2" />
-                            Export
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                </span>
               </div>
-            )}
-          </div>
+            </div>
+          ) : error ? (
+            <div className="text-center bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
+              <p className="text-lg">{error}</p>
+            </div>
+          ) : (
+            <>
+              {(userRole === 'admin' || userRole === 'teacher') && (
+                <div className="mb-12 bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
+                  <h2 className="text-2xl font-bold mb-6">Generate Report</h2>
+                  <form onSubmit={handleGenerateReport} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                        Report Type
+                      </label>
+                      <select
+                        id="type"
+                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                        required
+                        disabled={isFormLoading}
+                        onChange={(e) => setReportType(e.target.value)}
+                      >
+                        <option value="Academic">Academic</option>
+                        <option value="Attendance">Attendance</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="student" className="block text-sm font-medium text-gray-700">
+                        Student Name
+                      </label>
+                      <select
+                        id="student"
+                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                        required
+                        disabled={isFormLoading}
+                      >
+                        <option value="">Select Student</option>
+                        {studentOptions.map((student) => (
+                          <option key={student._id} value={student._id}>
+                            {student.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="class" className="block text-sm font-medium text-gray-700">
+                        Class
+                      </label>
+                      <select
+                        id="class"
+                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                        required
+                        disabled={isFormLoading}
+                      >
+                        <option value="">Select Class</option>
+                        {classOptions.map((className) => (
+                          <option key={className} value={className}>
+                            {className}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {reportType === 'Academic' && (
+                      <>
+                        <div>
+                          <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                            Subject
+                          </label>
+                          <select
+                            id="subject"
+                            className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                            required
+                            disabled={isFormLoading}
+                          >
+                            <option value="">Select Subject</option>
+                            {subjectOptions.map((subject) => (
+                              <option key={subject} value={subject}>
+                                {subject}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="marks" className="block text-sm font-medium text-gray-700">
+                            Marks
+                          </label>
+                          <input
+                            type="number"
+                            id="marks"
+                            className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                            placeholder="Enter marks"
+                            min="0"
+                            max="100"
+                            required
+                            disabled={isFormLoading}
+                          />
+                        </div>
+                      </>
+                    )}
+                    {reportType === 'Attendance' && (
+                      <div>
+                        <label htmlFor="attendance" className="block text-sm font-medium text-gray-700">
+                          Attendance %
+                        </label>
+                        <input
+                          type="text"
+                          id="attendance"
+                          className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                          placeholder="Enter attendance (e.g., 90%)"
+                          required
+                          disabled={isFormLoading}
+                        />
+                      </div>
+                    )}
+                    <button
+                      type="submit"
+                      className={`col-span-1 sm:col-span-2 cursor-pointer bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform shadow-md ${isFormLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      disabled={isFormLoading}
+                    >
+                      <HiChartBar className="h-5 w-5 inline mr-2" />
+                      {isFormLoading ? 'Generating...' : 'Generate Report'}
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              <div className="bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
+                <h2 className="text-2xl font-bold  mb-6">Report History</h2>
+                {reports.length === 0 ? (
+                  <div className="text-center text-gray-600 py-6">
+                    No reports found.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-teal-50">
+                        <tr>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('date')}
+                          >
+                            Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('type')}
+                          >
+                            Type {sortConfig.key === 'type' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('student')}
+                          >
+                            Student {sortConfig.key === 'student' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('class')}
+                          >
+                            Class {sortConfig.key === 'class' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('subject')}
+                          >
+                            Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('marks')}
+                          >
+                            Marks {sortConfig.key === 'marks' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
+                            onClick={() => sortData('attendance')}
+                          >
+                            Attendance {sortConfig.key === 'attendance' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {reports.map((report) => (
+                          <tr key={report.id} className="hover:bg-teal-50 transition-all duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(report.date)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              <span
+                                className={`px-3 py-1 rounded-full text-xs font-semibold ${report.type === 'Academic' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                                  }`}
+                              >
+                                {report.type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.student}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.class}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {report.type === 'Academic' ? report.subject || '-' : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {report.type === 'Academic' ? report.marks || '-' : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                              {report.type === 'Attendance' ? report.attendance || '-' : '-'}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                onClick={() => handleExportReport(report.id)}
+                                className="bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center hover:bg-teal-700 transition-all duration-300 transform cursor-pointer shadow-md"
+                              >
+                                <HiDocumentDownload className="h-5 w-5 mr-2" />
+                                Export
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
       <Footer />

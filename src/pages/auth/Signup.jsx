@@ -12,6 +12,7 @@ const Signup = () => {
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
     const [className, setClassName] = useState('');
+    const [parentEmail, setParentEmail] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -19,10 +20,10 @@ const Signup = () => {
         e.preventDefault();
         const toastId = toast.loading('Processing signup...');
         try {
-            if (!name || !email || !password || !role || (role === 'student' && !className)) {
+            if (!name || !email || !password || !role || (role === 'student' && (!className || !parentEmail))) {
                 throw new Error('Please fill in all required fields.');
             }
-            const response = await axios.post('/api/auth/register', {
+            const response = await axios.post(`${import.meta.env.VITE_REACT_APP_API_URL}/api/auth/register`, {
                 name,
                 email,
                 password,
@@ -30,12 +31,12 @@ const Signup = () => {
                 phone,
                 address,
                 class: className,
+                parentEmail: role === 'student' ? parentEmail : undefined,
             });
             setAuthTokens({
                 accessToken: response?.data?.accessToken,
                 refreshToken: response?.data?.refreshToken,
             });
-            // localStorage.setItem('userRole', role);
             toast.success('Signup successful!', {
                 id: toastId,
                 duration: 3000,
@@ -54,7 +55,7 @@ const Signup = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg">
-                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">Sign Up for EduManage</h2>
+                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">Sign Up for PathSala</h2>
                 {error && (
                     <div className="mb-4 text-red-600 text-sm text-center">{error}</div>
                 )}
@@ -147,36 +148,50 @@ const Signup = () => {
                             {/* <option value="parent">Parent</option> */}
                         </select>
                     </div>
-                    <div className="mb-4">
-                        {role === 'student' && (
-                            <>
-                                <label htmlFor="class" className="block text-sm font-medium text-gray-700">
-                                    Class
-                                </label>
-                                <select
-                                    id="class"
-                                    value={className}
-                                    onChange={(e) => setClassName(e.target.value)}
-                                    className="mt-1 cursor-pointer w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                    required
-                                >
-                                    <option value="">Select Class</option>
-                                    <option value="Class 1">Class 1</option>
-                                    <option value="Class 2">Class 2</option>
-                                    <option value="Class 3">Class 3</option>
-                                    <option value="Class 4">Class 4</option>
-                                    <option value="Class 5">Class 5</option>
-                                    <option value="Class 6">Class 6</option>
-                                    <option value="Class 7">Class 7</option>
-                                    <option value="Class 8">Class 8</option>
-                                    <option value="Class 9">Class 9</option>
-                                    <option value="Class 10">Class 10</option>
-                                    <option value="Class 11">Class 11</option>
-                                    <option value="Class 12">Class 12</option>
-                                </select>
-                            </>
-                        )}
-                    </div>
+                    {role === 'student' && (
+                        <div className="mb-4">
+                            <label htmlFor="parentEmail" className="block text-sm font-medium text-gray-700">
+                                Parent Email
+                            </label>
+                            <input
+                                type="email"
+                                id="parentEmail"
+                                value={parentEmail}
+                                onChange={(e) => setParentEmail(e.target.value)}
+                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                placeholder="Enter parent email"
+                                required
+                            />
+                        </div>
+                    )}
+                    {role === 'student' && (
+                        <div className="mb-4">
+                            <label htmlFor="class" className="block text-sm font-medium text-gray-700">
+                                Class
+                            </label>
+                            <select
+                                id="class"
+                                value={className}
+                                onChange={(e) => setClassName(e.target.value)}
+                                className="mt-1 cursor-pointer w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                required
+                            >
+                                <option value="">Select Class</option>
+                                <option value="Class 1">Class 1</option>
+                                <option value="Class 2">Class 2</option>
+                                <option value="Class 3">Class 3</option>
+                                <option value="Class 4">Class 4</option>
+                                <option value="Class 5">Class 5</option>
+                                <option value="Class 6">Class 6</option>
+                                <option value="Class 7">Class 7</option>
+                                <option value="Class 8">Class 8</option>
+                                <option value="Class 9">Class 9</option>
+                                <option value="Class 10">Class 10</option>
+                                <option value="Class 11">Class 11</option>
+                                <option value="Class 12">Class 12</option>
+                            </select>
+                        </div>
+                    )}
                     <button
                         type="submit"
                         className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"

@@ -20,6 +20,8 @@ const Home = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'guest');
+    const token = localStorage.getItem('accessToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
     // Static data for new sections
     const features = [
@@ -64,7 +66,7 @@ const Home = () => {
         const fetchGallery = async () => {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/gallery`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+                    headers,
                 });
                 setGallery(response?.data?.gallery || []);
                 setIsLoading(false);
@@ -92,7 +94,7 @@ const Home = () => {
         });
         try {
             await axios.post(`${import.meta.env.VITE_REACT_APP_API_URL}/api/admissions`, formData, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+                headers,
             });
             setFormData({
                 studentName: '',
@@ -156,7 +158,7 @@ const Home = () => {
                     <div className="absolute inset-0 bg-[url('/src/assets/wave-pattern.svg')] opacity-10"></div>
                     <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 animate-fade-in">
-                            Welcome to EduManage School
+                            Welcome to PathSala School
                         </h1>
                         <p className="text-xl md:text-2xl font-medium max-w-3xl mx-auto mb-8 animate-slide-up">
                             Empowering education with seamless management for students, teachers, and admins.
@@ -175,7 +177,7 @@ const Home = () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <h2 className="text-4xl font-bold text-gray-800 mb-6 animate-fade-in">Our Mission</h2>
                         <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-                            At EduManage, we aim to revolutionize school management by providing a unified platform that connects students, teachers, and admins. Our goal is to streamline operations, enhance learning experiences, and foster collaboration through innovative technology.
+                            At PathSala, we aim to revolutionize school management by providing a unified platform that connects students, teachers, and admins. Our goal is to streamline operations, enhance learning experiences, and foster collaboration through innovative technology.
                         </p>
                         <a
                             href="/promotions"
@@ -188,7 +190,7 @@ const Home = () => {
 
                 {/* Features Section */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h2 className="text-4xl font-bold text-gray-800 mb-12 text-center animate-fade-in">Why EduManage Stands Out</h2>
+                    <h2 className="text-4xl font-bold text-gray-800 mb-12 text-center animate-fade-in">Why PathSala Stands Out</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {features.map((feature, index) => (
                             <div
@@ -224,11 +226,11 @@ const Home = () => {
 
                 {/* About Section */}
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                    <h2 className="text-4xl font-bold text-gray-800 mb-12 text-center animate-fade-in">About EduManage School</h2>
+                    <h2 className="text-4xl font-bold text-gray-800 mb-12 text-center animate-fade-in">About PathSala School</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div className="flex flex-col justify-center">
                             <p className="text-lg text-gray-700 mb-6 leading-relaxed">
-                                EduManage School is a cutting-edge platform designed to simplify school operations and enhance learning. From digital classrooms to real-time notifications, we provide tools that empower students, teachers, and admins to succeed.
+                                PathSala School is a cutting-edge platform designed to simplify school operations and enhance learning. From digital classrooms to real-time notifications, we provide tools that empower students, teachers, and admins to succeed.
                             </p>
                             <ul className="list-disc list-inside text-gray-600 space-y-2 mb-6">
                                 <li>Interactive digital classrooms with multimedia support</li>
@@ -247,7 +249,7 @@ const Home = () => {
                         <div className="relative">
                             <img
                                 src={school}
-                                alt="EduManage School"
+                                alt="PathSala School"
                                 className="rounded-lg shadow-md w-full h-96 object-conatin"
                             />
                             <div className="absolute inset-0 bg-teal-600 opacity-20 rounded-lg"></div>
@@ -262,7 +264,49 @@ const Home = () => {
                             {userRole === 'student' ? 'Join Our School' : 'Contribute to Our Gallery'}
                         </h2>
                         <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
-                            {userRole === 'student' ? (
+                            {userRole === 'admin' ? (
+                                <form onSubmit={handleUploadGalleryImage} className="space-y-6">
+                                    <div>
+                                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+                                        <input
+                                            type="text"
+                                            id="title"
+                                            name="title"
+                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
+                                            placeholder="Enter image title"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                                        <textarea
+                                            id="description"
+                                            name="description"
+                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
+                                            placeholder="Enter image description"
+                                            rows="4"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="file" className="block text-sm font-medium text-gray-700">Upload Image</label>
+                                        <input
+                                            type="file"
+                                            id="file"
+                                            name="file"
+                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
+                                            accept="image/jpeg,image/png"
+                                            required
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        className="w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform hover:scale-105"
+                                    >
+                                        <HiUpload className="h-5 w-5 inline mr-2" />
+                                        Upload Image
+                                    </button>
+                                </form>
+                            ) : (
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     <div>
                                         <label htmlFor="studentName" className="block text-sm font-medium text-gray-700">Student Full Name</label>
@@ -360,48 +404,6 @@ const Home = () => {
                                         Submit Application
                                     </button>
                                 </form>
-                            ) : (
-                                <form onSubmit={handleUploadGalleryImage} className="space-y-6">
-                                    <div>
-                                        <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                                        <input
-                                            type="text"
-                                            id="title"
-                                            name="title"
-                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
-                                            placeholder="Enter image title"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
-                                        <textarea
-                                            id="description"
-                                            name="description"
-                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
-                                            placeholder="Enter image description"
-                                            rows="4"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="file" className="block text-sm font-medium text-gray-700">Upload Image</label>
-                                        <input
-                                            type="file"
-                                            id="file"
-                                            name="file"
-                                            className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all duration-300"
-                                            accept="image/jpeg,image/png"
-                                            required
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-teal-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform hover:scale-105"
-                                    >
-                                        <HiUpload className="h-5 w-5 inline mr-2" />
-                                        Upload Image
-                                    </button>
-                                </form>
                             )}
                         </div>
                     </div>
@@ -440,7 +442,16 @@ const Home = () => {
                 <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                     <h2 className="text-4xl font-bold text-gray-800 mb-12 text-center animate-fade-in">Our Vibrant Campus</h2>
                     {isLoading ? (
-                        <div className="text-center text-gray-600 animate-pulse">Loading...</div>
+                        <div className='h-[60vh] flex items-center justify-center'>
+                            <div
+                                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
+                            >
+                                <span
+                                    class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
+                                >
+                                </span>
+                            </div>
+                        </div>
                     ) : error ? (
                         <div className="text-center text-red-600">{error}</div>
                     ) : gallery.length === 0 ? (

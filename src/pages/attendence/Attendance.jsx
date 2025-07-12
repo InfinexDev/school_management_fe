@@ -12,6 +12,49 @@ const Attendance = () => {
   const [error, setError] = useState(null);
   const [students, setStudents] = useState([]);
   const [leaveRequests, setLeaveRequests] = useState([]);
+  const [studentOptions, setStudentOptions] = useState([]);
+  const [classOptions] = useState([
+    'Class 1',
+    'Class 2',
+    'Class 3',
+    'Class 4',
+    'Class 5',
+    'Class 6',
+    'Class 7',
+    'Class 8',
+    'Class 9',
+    'Class 10',
+    'Class 11',
+    'Class 12',
+  ]);
+
+  useEffect(() => {
+    const fetchStudentOptions = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/users/students`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        setStudentOptions(response?.data?.students || []);
+      } catch (error) {
+        console.error('Fetch students error:', error);
+        toast.error('Failed to fetch students for dropdown', {
+          style: {
+            background: '#ef4444',
+            color: '#ffffff',
+            fontWeight: '600',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+          },
+          duration: 4000,
+        });
+      }
+    };
+
+    fetchStudentOptions();
+  }, []);
 
   useEffect(() => {
     const storedRole = localStorage.getItem('userRole');
@@ -35,7 +78,7 @@ const Attendance = () => {
 
     const fetchStudents = async () => {
       try {
-        const response = await axios.get('/api/attendance', {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/attendance`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           },
@@ -61,7 +104,7 @@ const Attendance = () => {
 
     const fetchLeaveRequests = async () => {
       try {
-        const response = await axios.get('/api/attendance/leave-requests', {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/attendance/leave-requests`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           },
@@ -95,6 +138,7 @@ const Attendance = () => {
 
   // Update handleMarkAttendance
   const handleMarkAttendance = async (studentId, status) => {
+    console.log('Marking attendance for:', { studentId, status });
     const toastId = toast.loading('Updating attendance...', {
       style: {
         background: '#0f766e',
@@ -109,7 +153,7 @@ const Attendance = () => {
 
     try {
       const response = await axios.post(
-        '/api/attendance/mark',
+        `${import.meta.env.VITE_REACT_APP_API_URL}/api/attendance/mark`,
         { studentId, status },
         {
           headers: {
@@ -182,7 +226,7 @@ const Attendance = () => {
 
     try {
       const response = await axios.post(
-        '/api/attendance/leave-request',
+        `${import.meta.env.VITE_REACT_APP_API_URL}/api/attendance/leave-request`,
         {
           student: e.target.student.value,
           class: e.target.class.value,
@@ -228,7 +272,7 @@ const Attendance = () => {
     }
   };
 
-  // Update handleApproveLeave
+  // Update handleApproveLeave to use VITE_REACT_APP_API_URL
   const handleApproveLeave = async (leaveId) => {
     const toastId = toast.loading('Processing leave request...', {
       style: {
@@ -244,7 +288,7 @@ const Attendance = () => {
 
     try {
       const response = await axios.put(
-        `/api/attendance/leave-request/${leaveId}/approve`,
+        `${import.meta.env.VITE_REACT_APP_API_URL}/api/attendance/leave-request/${leaveId}/approve`,
         {},
         {
           headers: {
@@ -295,9 +339,17 @@ const Attendance = () => {
             Attendance & Leave Management
           </h1>
           {isLoading ? (
-            <div className="text-center">
-              <p className="text-lg text-gray-600">Loading...</p>
+            <div className='h-[60vh] flex items-center justify-center'>
+              <div
+                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
+              >
+                <span
+                  class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
+                >
+                </span>
+              </div>
             </div>
+
           ) : error ? (
             <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
               <p>{error}</p>
@@ -363,25 +415,35 @@ const Attendance = () => {
                       <label htmlFor="student" className="block text-sm font-medium text-gray-700">
                         Student Name
                       </label>
-                      <input
-                        type="text"
+                      <select
                         id="student"
                         className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                        placeholder="Enter student name"
                         required
-                      />
+                      >
+                        <option value="">Select Student</option>
+                        {studentOptions.map((student) => (
+                          <option key={student._id} value={student._id}>
+                            {student.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label htmlFor="class" className="block text-sm font-medium text-gray-700">
                         Class
                       </label>
-                      <input
-                        type="text"
+                      <select
                         id="class"
                         className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                        placeholder="Enter class (e.g., Class 10)"
                         required
-                      />
+                      >
+                        <option value="">Select Class</option>
+                        {classOptions.map((className) => (
+                          <option key={className} value={className}>
+                            {className}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label htmlFor="reason" className="block text-sm font-medium text-gray-700">

@@ -24,7 +24,7 @@ const Footer = () => {
                 />
               </svg>
               <span className="text-2xl font-extrabold tracking-tight">
-                EduManage
+                PathSala
               </span>
             </div>
             <p className="text-sm font-medium">
@@ -168,7 +168,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-teal-500 mt-8 pt-4 text-center text-sm">
           <p>
-            &copy; {new Date().getFullYear()} EduManage. All rights reserved. |{' '}
+            &copy; {new Date().getFullYear()} PathSala. All rights reserved. |{' '}
             <a
               href="https://www.infinextechnologies.com"
               className="hover:text-teal-200 transition-colors duration-300"

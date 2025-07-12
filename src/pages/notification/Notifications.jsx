@@ -10,6 +10,30 @@ const Notifications = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [subjects] = useState([
+    'Exam Schedule',
+    'Holiday Notice',
+    'Fee Reminder',
+    'Parent-Teacher Meeting',
+    'General Announcement',
+  ]);
+  const [recipientOptions] = useState([
+    'All Students',
+    'Class 1',
+    'Class 2',
+    'Class 3',
+    'Class 4',
+    'Class 5',
+    'Class 6',
+    'Class 7',
+    'Class 8',
+    'Class 9',
+    'Class 10',
+    'Class 11',
+    'Class 12',
+    'All Teachers',
+    'All Parents',
+  ]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -113,8 +137,15 @@ const Notifications = () => {
           </h1>
 
           {isLoading ? (
-            <div className="text-center">
-              <p className="text-lg text-gray-600">Loading...</p>
+            <div className='h-[60vh] flex items-center justify-center'>
+              <div
+                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
+              >
+                <span
+                  class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
+                >
+                </span>
+              </div>
             </div>
           ) : error ? (
             <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
@@ -144,13 +175,18 @@ const Notifications = () => {
                       <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
                         Subject
                       </label>
-                      <input
-                        type="text"
+                      <select
                         id="subject"
                         className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                        placeholder="Enter subject (e.g., Exam Schedule)"
                         required
-                      />
+                      >
+                        <option value="">Select Subject</option>
+                        {subjects.map((subject) => (
+                          <option key={subject} value={subject}>
+                            {subject}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="col-span-1 sm:col-span-2">
                       <label htmlFor="message" className="block text-sm font-medium text-gray-700">
@@ -168,13 +204,18 @@ const Notifications = () => {
                       <label htmlFor="recipients" className="block text-sm font-medium text-gray-700">
                         Recipients
                       </label>
-                      <input
-                        type="text"
+                      <select
                         id="recipients"
                         className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                        placeholder="Enter recipients (e.g., Class 10, John Doe)"
                         required
-                      />
+                      >
+                        <option value="">Select Recipients</option>
+                        {recipientOptions.map((recipient) => (
+                          <option key={recipient} value={recipient}>
+                            {recipient}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <button
                       type="submit"

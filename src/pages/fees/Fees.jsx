@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HiCurrencyRupee, HiDocumentDownload } from 'react-icons/hi';
+import { HiCurrencyRupee, HiDocumentDownload, HiCreditCard } from 'react-icons/hi';
 import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
 import toast from 'react-hot-toast';
@@ -9,40 +9,35 @@ const Fees = () => {
     const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'student');
     const [feeStructure, setFeeStructure] = useState([]);
     const [paymentHistory, setPaymentHistory] = useState([]);
-    const [students, setStudents] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isFormLoading, setIsFormLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [classOptions] = useState([
+        'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6',
+        'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
+    ]);
+    const [feeTypeOptions] = useState([
+        'Tuition Fee', 'Exam Fee', 'Library Fee', 'Sports Fee', 'Transport Fee', 'Miscellaneous',
+    ]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const requests = [
-                    axios.get('/api/fees', {
+                    axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/fees`, {
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                     }),
-                    axios.get('/api/payments', {
+                    axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/payments`, {
                         headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                     }),
                 ];
 
-                // Only fetch students if user is admin
-                if (userRole === 'admin') {
-                    requests.push(
-                        axios.get('/api/users/students', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
-                        })
-                    );
-                }
-
                 const responses = await Promise.all(requests);
-                const [feesResponse, paymentsResponse, studentsResponse] = responses;
+                const [feesResponse, paymentsResponse] = responses;
 
                 console.log('Fees Response:', feesResponse.data);
                 console.log('Payments Response:', paymentsResponse.data);
-                if (userRole === 'admin') {
-                    console.log('Students Response:', studentsResponse.data);
-                    setStudents(studentsResponse?.data?.students || []);
-                }
                 setFeeStructure(feesResponse?.data?.fees || []);
                 setPaymentHistory(paymentsResponse?.data?.payments || []);
                 setIsLoading(false);
@@ -65,11 +60,82 @@ const Fees = () => {
         };
 
         fetchData();
-    }, [userRole]);
+    }, [userRole, feeStructure.length]);
+
+    const formatDate = (dateString) => {
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-GB', options);
+    };
+
+    const sortData = (key, array, setArray) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+
+        const sortedArray = [...array].sort((a, b) => {
+            if (key === 'amount') {
+                return direction === 'asc' ? a[key] - b[key] : b[key] - a[key];
+            }
+            if (key === 'dueDate' || key === 'date') {
+                return direction === 'asc'
+                    ? new Date(a[key]) - new Date(b[key])
+                    : new Date(b[key]) - new Date(a[key]);
+            }
+            return direction === 'asc'
+                ? a[key].localeCompare(b[key])
+                : b[key].localeCompare(a[key]);
+        });
+        setArray(sortedArray);
+    };
 
     const handleAddFee = async (e) => {
         e.preventDefault();
-        const toastId = toast.loading('Adding new fee...', {
+        const amount = parseFloat(e.target.amount.value);
+        const dueDate = new Date(e.target.dueDate.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (amount <= 0) {
+            toast.error('Amount must be greater than zero', {
+                style: {
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    fontWeight: '600',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                },
+                duration: 4000,
+            });
+            return;
+        }
+
+        if (dueDate < today) {
+            toast.error('Due date cannot be in the past', {
+                style: {
+                    background: '#ef4444',
+                    color: '#ffffff',
+                    fontWeight: '600',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                },
+                duration: 4000,
+            });
+            return;
+        }
+
+        const confirmAdd = window.confirm(
+            `Are you sure you want to add ${e.target.type.value} of ₹${amount} for all students in ${e.target.class.value}?`
+        );
+        if (!confirmAdd) {
+            return;
+        }
+
+        setIsFormLoading(true);
+        const toastId = toast.loading('Adding new fee for class...', {
             style: {
                 background: '#0f766e',
                 color: '#ffffff',
@@ -83,21 +149,20 @@ const Fees = () => {
 
         try {
             const response = await axios.post(
-                '/api/fees',
+                `${import.meta.env.VITE_REACT_APP_API_URL}/api/fees`,
                 {
-                    studentId: e.target.student.value,
                     class: e.target.class.value,
                     type: e.target.type.value,
-                    amount: parseFloat(e.target.amount.value),
+                    amount,
                     dueDate: e.target.dueDate.value,
                 },
                 {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                 }
             );
-            setFeeStructure([...feeStructure, response.data.fee]);
+            setFeeStructure([...feeStructure, ...response.data.fees]);
             e.target.reset();
-            toast.success('Fee added successfully!', {
+            toast.success(`Fee added for ${e.target.class.value} successfully!`, {
                 id: toastId,
                 style: {
                     background: '#0f766e',
@@ -124,6 +189,8 @@ const Fees = () => {
                 },
                 duration: 4000,
             });
+        } finally {
+            setIsFormLoading(false);
         }
     };
 
@@ -142,7 +209,7 @@ const Fees = () => {
 
         try {
             const response = await axios.post(
-                `/api/fees/pay/${feeId}`,
+                `${import.meta.env.VITE_REACT_APP_API_URL}/api/fees/pay/${feeId}`,
                 { method: 'UPI' },
                 {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
@@ -196,7 +263,7 @@ const Fees = () => {
         });
 
         try {
-            const response = await axios.get('/api/payments/export', {
+            const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/payments/export`, {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
                 responseType: 'blob',
             });
@@ -240,77 +307,83 @@ const Fees = () => {
     return (
         <div>
             <Navbar />
-            <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-                        Fees Management
+                    <h1 className="text-3xl font-bold mb-10 text-center drop-shadow-md">
+                        Fees Management Dashboard
                     </h1>
 
                     {isLoading ? (
-                        <div className="text-center">
-                            <p className="text-lg text-gray-600">Loading...</p>
+                        <div className='h-[60vh] flex items-center justify-center'>
+                            <div
+                                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
+                            >
+                                <span
+                                    class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
+                                >
+                                </span>
+                            </div>
                         </div>
+
                     ) : error ? (
-                        <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-                            <p>{error}</p>
+                        <div className="text-center bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
+                            <p className="text-lg">{error}</p>
                         </div>
                     ) : (
                         <>
                             {userRole === 'admin' && (
-                                <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
-                                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Add New Fee Structure</h2>
-                                    <form onSubmit={handleAddFee} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="mb-12 bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
+                                    <h2 className="text-2xl font-bold text-gray-500 mb-6">Add New Fee Structure</h2>
+                                    <form onSubmit={handleAddFee} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <div>
-                                            <label htmlFor="student" className="block text-sm font-medium text-gray-700">
-                                                Student
+                                            <label htmlFor="class" className="block text-sm font-medium text-gray-700">
+                                                Class
                                             </label>
                                             <select
-                                                id="student"
-                                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                                id="class"
+                                                className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                                                 required
+                                                disabled={isFormLoading}
                                             >
-                                                <option value="">Select Student</option>
-                                                {students.map((student) => (
-                                                    <option key={student._id} value={student._id}>
-                                                        {student.name} {student?.class && (`(${student?.class})`)}
+                                                <option value="">Select Class</option>
+                                                {classOptions.map((className) => (
+                                                    <option key={className} value={className}>
+                                                        {className}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div>
-                                            <label htmlFor="class" className="block text-sm font-medium text-gray-700">
-                                                Class
-                                            </label>
-                                            <input
-                                                type="text"
-                                                id="class"
-                                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                                placeholder="Enter class (e.g., Class 10)"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
                                             <label htmlFor="type" className="block text-sm font-medium text-gray-700">
                                                 Fee Type
                                             </label>
-                                            <input
-                                                type="text"
+                                            <select
                                                 id="type"
-                                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
-                                                placeholder="Enter fee type (e.g., Tuition Fee)"
+                                                className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                                                 required
-                                            />
+                                                disabled={isFormLoading}
+                                            >
+                                                <option value="">Select Fee Type</option>
+                                                {feeTypeOptions.map((type) => (
+                                                    <option key={type} value={type}>
+                                                        {type}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                         <div>
                                             <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                                                Amount
+                                                Amount (₹)
                                             </label>
                                             <input
                                                 type="number"
                                                 id="amount"
-                                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                                className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
                                                 placeholder="Enter amount"
+                                                min="1"
+                                                step="0.01"
                                                 required
+                                                disabled={isFormLoading}
                                             />
                                         </div>
                                         <div>
@@ -320,54 +393,67 @@ const Fees = () => {
                                             <input
                                                 type="date"
                                                 id="dueDate"
-                                                className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                                className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+                                                min={new Date().toISOString().split('T')[0]}
                                                 required
+                                                disabled={isFormLoading}
                                             />
                                         </div>
                                         <button
                                             type="submit"
-                                            className="col-span-1 sm:col-span-2 bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
+                                            className={`col-span-1 sm:col-span-2 bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform shadow-md ${isFormLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                                }`}
+                                            disabled={isFormLoading}
                                         >
-                                            Add Fee
+                                            {isFormLoading ? 'Adding Fee...' : 'Add Fee for Class'}
                                         </button>
                                     </form>
                                 </div>
                             )}
 
-                            <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-4">Fee Structure</h2>
+                            <div className="mb-12 bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
+                                <h2 className="text-2xl font-bold mb-6">Fee Structure</h2>
                                 {feeStructure.length === 0 ? (
-                                    <div className="text-center text-gray-600 py-4">
+                                    <div className="text-center text-gray-600 py-6">
                                         No fees found.
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
+                                            <thead className="bg-[#F9FAFB]">
                                                 <tr>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Student Name
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('studentName', feeStructure, setFeeStructure)}
+                                                    >
+                                                        Student Name {sortConfig.key === 'studentName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Roll No
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Class
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Fee Type
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Amount
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('amount', feeStructure, setFeeStructure)}
+                                                    >
+                                                        Amount {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Due Date
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('dueDate', feeStructure, setFeeStructure)}
+                                                    >
+                                                        Due Date {sortConfig.key === 'dueDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Status
                                                     </th>
                                                     {(userRole === 'student' || userRole === 'parent') && (
-                                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                             Action
                                                         </th>
                                                     )}
@@ -375,22 +461,29 @@ const Fees = () => {
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
                                                 {feeStructure.map((fee) => (
-                                                    <tr key={fee.id}>
+                                                    <tr key={fee.id} className="hover:bg-teal-50 transition-all duration-200">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.studentName}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.rollNo}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.class}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.type}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{fee.amount}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.dueDate}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.status}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{fee.amount.toFixed(2)}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(fee.dueDate)}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                            <span
+                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${fee.status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                                    }`}
+                                                            >
+                                                                {fee.status}
+                                                            </span>
+                                                        </td>
                                                         {(userRole === 'student' || userRole === 'parent') && (
                                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                                 {fee.status === 'Pending' && (
                                                                     <button
                                                                         onClick={() => handlePayNow(fee.id)}
-                                                                        className="text-teal-600 cursor-pointer hover:text-teal-800 font-semibold flex items-center"
+                                                                        className="text-teal-600 hover:text-gray-500 font-semibold flex items-center transition-all duration-200"
                                                                     >
-                                                                        <HiCurrencyRupee className="h-5 w-5 mr-1" />
+                                                                        <HiCurrencyRupee className="h-5 w-5 mr-2" />
                                                                         Pay Now
                                                                     </button>
                                                                 )}
@@ -404,59 +497,81 @@ const Fees = () => {
                                 )}
                             </div>
 
-                            <div className="bg-white p-6 rounded-xl shadow-lg">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold text-gray-900">Payment History</h2>
+                            <div className="bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-2xl font-bold">Payment History</h2>
                                     <button
                                         onClick={handleExportReport}
-                                        className="bg-teal-600 cursor-pointer text-white px-4 py-2 rounded-lg font-semibold flex items-center hover:bg-teal-700 transition-all duration-300 transform shadow-md"
+                                        className="bg-teal-600 text-white px-5 py-3 rounded-lg font-semibold flex items-center hover:bg-teal-700 transition-all duration-300 transform shadow-md"
                                     >
                                         <HiDocumentDownload className="h-5 w-5 mr-2" />
                                         Export Report
                                     </button>
                                 </div>
                                 {paymentHistory.length === 0 ? (
-                                    <div className="text-center text-gray-600 py-4">
+                                    <div className="text-center text-gray-600 py-6">
                                         No payment history found.
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
+                                            <thead className="bg-teal-50">
                                                 <tr>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Student Name
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('studentName', paymentHistory, setPaymentHistory)}
+                                                    >
+                                                        Student Name {sortConfig.key === 'studentName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Roll No
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Date
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('date', paymentHistory, setPaymentHistory)}
+                                                    >
+                                                        Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Fee Type
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Amount
+                                                    <th
+                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        onClick={() => sortData('amount', paymentHistory, setPaymentHistory)}
+                                                    >
+                                                        Amount {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Status
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                         Payment Method
                                                     </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
                                                 {paymentHistory.map((payment) => (
-                                                    <tr key={payment.id}>
+                                                    <tr key={payment.id} className="hover:bg-teal-50 transition-all duration-200">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.studentName}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.rollNo}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.date}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(payment.date)}</td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.type}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.status}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.method}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount.toFixed(2)}</td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                            <span
+                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${payment.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                                    }`}
+                                                            >
+                                                                {payment.status}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            <div className="flex items-center">
+                                                                {payment.method === 'UPI' && <HiCurrencyRupee className="h-5 w-5 mr-2 text-teal-600" />}
+                                                                {payment.method === 'Card' && <HiCreditCard className="h-5 w-5 mr-2 text-teal-600" />}
+                                                                {payment.method}
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
