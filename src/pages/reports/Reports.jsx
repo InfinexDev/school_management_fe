@@ -410,85 +410,65 @@ const Reports = () => {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-teal-50">
+                    <table className="min-w-full bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden">
+                      <thead className="bg-gradient-to-r from-teal-600 to-teal-500 text-white">
                         <tr>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('date')}
-                          >
-                            Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('type')}
-                          >
-                            Type {sortConfig.key === 'type' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('student')}
-                          >
-                            Student {sortConfig.key === 'student' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('class')}
-                          >
-                            Class {sortConfig.key === 'class' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('subject')}
-                          >
-                            Subject {sortConfig.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('marks')}
-                          >
-                            Marks {sortConfig.key === 'marks' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th
-                            className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider cursor-pointer"
-                            onClick={() => sortData('attendance')}
-                          >
-                            Attendance {sortConfig.key === 'attendance' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                          </th>
-                          <th className="px-6 py-4 text-left text-xs font-medium text-teal-700 uppercase tracking-wider">
-                            Action
-                          </th>
+                          {[
+                            { label: 'Date', key: 'date' },
+                            { label: 'Type', key: 'type' },
+                            { label: 'Student', key: 'student' },
+                            { label: 'Class', key: 'class' },
+                            { label: 'Subject', key: 'subject' },
+                            { label: 'Marks', key: 'marks' },
+                            { label: 'Attendance', key: 'attendance' }
+                          ].map(({ label, key }) => (
+                            <th
+                              key={key}
+                              className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
+                              onClick={() => sortData(key)}
+                            >
+                              {label} {sortConfig.key === key && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                            </th>
+                          ))}
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+
+                      <tbody className="divide-y divide-gray-100 bg-white">
                         {reports.map((report) => (
                           <tr key={report.id} className="hover:bg-teal-50 transition-all duration-200">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(report.date)}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td className="px-6 py-4 text-sm text-gray-800 font-medium">{formatDate(report.date)}</td>
+
+                            <td className="px-6 py-4">
                               <span
-                                className={`px-3 py-1 rounded-full text-xs font-semibold ${report.type === 'Academic' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm
+              ${report.type === 'Academic'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-purple-100 text-purple-800'
                                   }`}
                               >
                                 {report.type}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.student}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{report.class}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+
+                            <td className="px-6 py-4 text-sm text-gray-700">{report.student}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{report.class}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
                               {report.type === 'Academic' ? report.subject || '-' : '-'}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td className="px-6 py-4 text-sm text-gray-700">
                               {report.type === 'Academic' ? report.marks || '-' : '-'}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <td className="px-6 py-4 text-sm text-gray-700">
                               {report.type === 'Attendance' ? report.attendance || '-' : '-'}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+
+                            <td className="px-6 py-4">
                               <button
                                 onClick={() => handleExportReport(report.id)}
-                                className="bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center hover:bg-teal-700 transition-all duration-300 transform cursor-pointer shadow-md"
+                                className="inline-flex items-center bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-2 rounded-md shadow-md hover:scale-102 cursor-pointer hover:shadow-lg transition-all duration-300"
                               >
-                                <HiDocumentDownload className="h-5 w-5 mr-2" />
+                                <HiDocumentDownload className="w-5 h-5 mr-2" />
                                 Export
                               </button>
                             </td>
@@ -496,6 +476,7 @@ const Reports = () => {
                         ))}
                       </tbody>
                     </table>
+
                   </div>
                 )}
               </div>

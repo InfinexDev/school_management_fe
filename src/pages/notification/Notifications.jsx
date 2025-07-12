@@ -236,33 +236,44 @@ const Notifications = () => {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full bg-white shadow-xl rounded-xl overflow-hidden">
+                      <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent By</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Type</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Subject</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Message</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Recipients</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Sent By</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200">
                         {notifications.map((notification) => (
-                          <tr key={notification.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{notification.date}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              <HiBell className="h-5 w-5 text-teal-600 inline mr-2" />
-                              {notification.type}
+                          <tr key={notification.id} className="hover:bg-gray-50 transition-all duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                              <span className="inline-block bg-gray-100 px-3 py-1 rounded-full text-gray-600 text-xs font-semibold">
+                                {notification.date}
+                              </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{notification.subject}</td>
-                            <td className="px-6 py-4 text-sm text-gray-900">{notification.message}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{notification.recipients}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{notification.sentBy}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium flex items-center gap-2">
+                              <HiBell className="text-teal-600 h-5 w-5" />
+                              <span className="bg-teal-100 text-teal-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                                {notification.type}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{notification.subject}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{notification.message}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                                {notification.recipients}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800">{notification.sentBy}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+
                   </div>
                 )}
               </div>

@@ -365,43 +365,63 @@ const Attendance = () => {
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                      <table className="min-w-full bg-white shadow-xl rounded-xl overflow-hidden">
+                        <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Student</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="divide-y divide-gray-100">
                           {students.map((student) => (
-                            <tr key={student.id}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.name}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.class}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.date}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{student.status}</td>
+                            <tr key={student.id} className="hover:bg-gray-50 transition-colors duration-200">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{student.name}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{student.class}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{student.date}</td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                <button
-                                  onClick={() => handleMarkAttendance(student.id, 'Present')}
-                                  className="text-teal-600 cursor-pointer hover:text-teal-800 font-semibold flex items-center mr-4"
+                                <span
+                                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${student.status === 'Present'
+                                    ? 'bg-green-100 text-green-700'
+                                    : student.status === 'Absent'
+                                      ? 'bg-red-100 text-red-700'
+                                      : 'bg-gray-200 text-gray-600'
+                                    }`}
                                 >
-                                  <HiCheckCircle className="h-5 w-5 mr-1" />
-                                  Present
-                                </button>
-                                <button
-                                  onClick={() => handleMarkAttendance(student.id, 'Absent')}
-                                  className="text-red-600 cursor-pointer hover:text-red-800 font-semibold flex items-center"
-                                >
-                                  <HiXCircle className="h-5 w-5 mr-1" />
-                                  Absent
-                                </button>
+                                  {student.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                {student.status === 'Not Marked' ? (
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => handleMarkAttendance(student.id, 'Present')}
+                                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white bg-green-500 hover:bg-green-600 shadow-md transition-all duration-300 transform hover:scale-102 cursor-pointer"
+                                    >
+                                      <HiCheckCircle className="h-5 w-5" />
+                                      Present
+                                    </button>
+                                    <button
+                                      onClick={() => handleMarkAttendance(student.id, 'Absent')}
+                                      className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white bg-red-500 hover:bg-red-600 shadow-md transition-all duration-300 transform hover:scale-102 cursor-pointer"
+                                    >
+                                      <HiXCircle className="h-5 w-5" />
+                                      Absent
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold border border-gray-300 shadow-sm">
+                                    ✅ Already Marked
+                                  </span>
+                                )}
                               </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
+
                     </div>
                   )}
                 </div>
@@ -499,34 +519,45 @@ const Attendance = () => {
                     </div>
                   ) : (
                     <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                      <table className="min-w-full bg-white shadow-xl rounded-xl overflow-hidden">
+                        <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">From</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">To</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Student</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Reason</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">From</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">To</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="divide-y divide-gray-100">
                           {leaveRequests.map((leave) => (
-                            <tr key={leave.id}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.student}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.class}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.reason}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.from}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.to}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{leave.status}</td>
+                            <tr key={leave.id} className="hover:bg-gray-50 transition-colors duration-200">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{leave.student}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{leave.class}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{leave.reason}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{leave.from}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{leave.to}</td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                <span
+                                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${leave.status === 'Approved'
+                                      ? 'bg-green-100 text-green-700'
+                                      : leave.status === 'Pending'
+                                        ? 'bg-yellow-100 text-yellow-700 animate-pulse'
+                                        : 'bg-gray-100 text-gray-600'
+                                    }`}
+                                >
+                                  {leave.status}
+                                </span>
+                              </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm">
                                 {leave.status === 'Pending' && (
                                   <button
                                     onClick={() => handleApproveLeave(leave.id)}
-                                    className="text-teal-600 cursor-pointer hover:text-teal-800 font-semibold flex items-center"
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white bg-teal-600 hover:bg-teal-700 shadow-md transition-all duration-300 transform hover:scale-105"
                                   >
-                                    <HiCheckCircle className="h-5 w-5 mr-1" />
+                                    <HiCheckCircle className="h-5 w-5" />
                                     Approve
                                   </button>
                                 )}
@@ -535,6 +566,7 @@ const Attendance = () => {
                           ))}
                         </tbody>
                       </table>
+
                     </div>
                   )}
                 </div>

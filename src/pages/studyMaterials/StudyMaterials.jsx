@@ -482,40 +482,40 @@ const StudyMaterials = () => {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full bg-white shadow-xl rounded-xl overflow-hidden">
+                      <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded By</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Subject</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Type</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Title</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Uploaded By</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200">
                         {materials.map((material) => (
-                          <tr key={material.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{material.class}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{material.subject}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <tr key={material.id} className="hover:bg-gray-50 transition-colors duration-200">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{material.class}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.subject}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center gap-2">
                               {material.type === 'PDF' ? (
-                                <HiDocumentText className="h-5 w-5 text-teal-600 inline" />
+                                <HiDocumentText className="h-5 w-5 text-teal-500" />
                               ) : (
-                                <HiVideoCamera className="h-5 w-5 text-teal-600 inline" />
+                                <HiVideoCamera className="h-5 w-5 text-purple-500" />
                               )}
-                              <span className="ml-2">{material.type}</span>
+                              <span className="text-sm font-semibold">{material.type}</span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{material.title}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{material.uploadedBy}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{material.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.title}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.uploadedBy}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.date}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <button
                                 onClick={() => handleDownload(material.id)}
-                                className="text-teal-600 cursor-pointer hover:text-teal-800 font-semibold flex items-center"
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white bg-teal-600 hover:bg-teal-700 shadow-md transition-transform duration-300 transform hover:scale-102 cursor-pointer"
                               >
-                                <HiDownload className="h-5 w-5 mr-1" />
+                                <HiDownload className="h-5 w-5" />
                                 Download
                               </button>
                             </td>
@@ -523,6 +523,7 @@ const StudyMaterials = () => {
                         ))}
                       </tbody>
                     </table>
+
                   </div>
                 )}
               </div>
@@ -535,26 +536,34 @@ const StudyMaterials = () => {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full bg-white shadow-xl rounded-xl overflow-hidden">
+                      <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scheduled Date</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Subject</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Topic</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Scheduled Date</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody className="divide-y divide-gray-200">
                         {scheduledTopics.map((topic) => (
-                          <tr key={topic.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{topic.class}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{topic.subject}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{topic.topic}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{topic.date}</td>
+                          <tr
+                            key={topic.id}
+                            className="hover:bg-gray-50 transition-all duration-200"
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">{topic.class}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{topic.subject}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{topic.topic}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              <span className="inline-block px-3 py-1 bg-teal-100 text-teal-700 text-xs font-medium rounded-full shadow-sm">
+                                {topic.date}
+                              </span>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+
                   </div>
                 )}
               </div>

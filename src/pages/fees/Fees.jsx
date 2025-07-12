@@ -419,71 +419,65 @@ const Fees = () => {
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-[#F9FAFB]">
+                                        <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+                                            <thead className="bg-gradient-to-r from-teal-600 to-teal-500 text-white">
                                                 <tr>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('studentName', feeStructure, setFeeStructure)}
                                                     >
                                                         Student Name {sortConfig.key === 'studentName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Roll No
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Class
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Fee Type
-                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Roll No</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Fee Type</th>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('amount', feeStructure, setFeeStructure)}
                                                     >
                                                         Amount {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('dueDate', feeStructure, setFeeStructure)}
                                                     >
                                                         Due Date {sortConfig.key === 'dueDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Status
-                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
                                                     {(userRole === 'student' || userRole === 'parent') && (
-                                                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Action
-                                                        </th>
+                                                        <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                                                     )}
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
+
+                                            <tbody className="bg-white divide-y divide-gray-100">
                                                 {feeStructure.map((fee) => (
-                                                    <tr key={fee.id} className="hover:bg-teal-50 transition-all duration-200">
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.studentName}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.rollNo}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.class}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{fee.type}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{fee.amount.toFixed(2)}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(fee.dueDate)}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <tr key={fee.id} className="hover:bg-gray-50 transition-all duration-300">
+                                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{fee.studentName}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{fee.rollNo}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{fee.class}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{fee.type}</td>
+                                                        <td className="px-6 py-4 text-sm font-semibold text-gray-800">₹{fee.amount.toFixed(2)}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{formatDate(fee.dueDate)}</td>
+                                                        <td className="px-6 py-4">
                                                             <span
-                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${fee.status === 'Paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                                className={`inline-block px-3 py-1 rounded-full text-xs font-bold 
+            ${fee.status === 'Paid'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : 'bg-red-100 text-red-700 animate-pulse border border-red-200'
                                                                     }`}
                                                             >
                                                                 {fee.status}
                                                             </span>
                                                         </td>
                                                         {(userRole === 'student' || userRole === 'parent') && (
-                                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                            <td className="px-6 py-4 text-sm">
                                                                 {fee.status === 'Pending' && (
                                                                     <button
                                                                         onClick={() => handlePayNow(fee.id)}
-                                                                        className="text-teal-600 hover:text-gray-500 font-semibold flex items-center transition-all duration-200"
+                                                                        className="inline-flex items-center px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg shadow-md transition-transform transform hover:scale-105"
                                                                     >
-                                                                        <HiCurrencyRupee className="h-5 w-5 mr-2" />
+                                                                        <HiCurrencyRupee className="h-4 w-4 mr-2" />
                                                                         Pay Now
                                                                     </button>
                                                                 )}
@@ -493,6 +487,7 @@ const Fees = () => {
                                                 ))}
                                             </tbody>
                                         </table>
+
                                     </div>
                                 )}
                             </div>
@@ -514,68 +509,65 @@ const Fees = () => {
                                     </div>
                                 ) : (
                                     <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-teal-50">
+                                        <table className="min-w-full bg-white shadow-lg rounded-xl overflow-hidden border border-gray-200">
+                                            <thead className="bg-gradient-to-r from-teal-600 to-teal-500 text-white">
                                                 <tr>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('studentName', paymentHistory, setPaymentHistory)}
                                                     >
                                                         Student Name {sortConfig.key === 'studentName' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Roll No
-                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Roll No</th>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('date', paymentHistory, setPaymentHistory)}
                                                     >
                                                         Date {sortConfig.key === 'date' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Fee Type
-                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Fee Type</th>
                                                     <th
-                                                        className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                                        className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
                                                         onClick={() => sortData('amount', paymentHistory, setPaymentHistory)}
                                                     >
                                                         Amount {sortConfig.key === 'amount' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Status
-                                                    </th>
-                                                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                        Payment Method
-                                                    </th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Payment Method</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
+
+                                            <tbody className="bg-white divide-y divide-gray-100">
                                                 {paymentHistory.map((payment) => (
-                                                    <tr key={payment.id} className="hover:bg-teal-50 transition-all duration-200">
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.studentName}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.rollNo}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(payment.date)}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.type}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{payment.amount.toFixed(2)}</td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <tr key={payment.id} className="hover:bg-gray-50 transition-all duration-300">
+                                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{payment.studentName}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{payment.rollNo}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{formatDate(payment.date)}</td>
+                                                        <td className="px-6 py-4 text-sm text-gray-700">{payment.type}</td>
+                                                        <td className="px-6 py-4 text-sm font-semibold text-gray-800">₹{payment.amount.toFixed(2)}</td>
+                                                        <td className="px-6 py-4">
                                                             <span
-                                                                className={`px-3 py-1 rounded-full text-xs font-semibold ${payment.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                                                className={`inline-block px-3 py-1 rounded-full text-xs font-bold 
+            ${payment.status === 'Completed'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : 'bg-red-100 text-red-800 border border-red-200 animate-pulse'
                                                                     }`}
                                                             >
                                                                 {payment.status}
                                                             </span>
                                                         </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                            <div className="flex items-center">
-                                                                {payment.method === 'UPI' && <HiCurrencyRupee className="h-5 w-5 mr-2 text-teal-600" />}
-                                                                {payment.method === 'Card' && <HiCreditCard className="h-5 w-5 mr-2 text-teal-600" />}
-                                                                {payment.method}
+                                                        <td className="px-6 py-4 text-sm text-gray-700">
+                                                            <div className="flex items-center gap-2">
+                                                                {payment.method === 'UPI' && <HiCurrencyRupee className="h-5 w-5 text-teal-600" />}
+                                                                {payment.method === 'Card' && <HiCreditCard className="h-5 w-5 text-teal-600" />}
+                                                                <span className="font-medium">{payment.method}</span>
                                                             </div>
                                                         </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
+
                                     </div>
                                 )}
                             </div>
