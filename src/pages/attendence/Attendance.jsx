@@ -58,7 +58,6 @@ const Attendance = () => {
 
   useEffect(() => {
     const storedRole = localStorage.getItem('userRole');
-    console.log('User Role:', storedRole);
     if (storedRole) {
       setUserRole(storedRole);
     } else {
