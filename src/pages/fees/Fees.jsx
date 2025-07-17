@@ -444,7 +444,7 @@ const Fees = () => {
                                                         Due Date {sortConfig.key === 'dueDate' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                                                     </th>
                                                     <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
-                                                    {(userRole === 'student' || userRole === 'parent') && (
+                                                    {(userRole === 'student' || userRole === 'admin') && (
                                                         <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
                                                     )}
                                                 </tr>
@@ -470,7 +470,7 @@ const Fees = () => {
                                                                 {fee.status}
                                                             </span>
                                                         </td>
-                                                        {(userRole === 'student' || userRole === 'parent') && (
+                                                        {(userRole === 'student' || userRole === 'admin') && (
                                                             <td className="px-6 py-4 text-sm">
                                                                 {fee.status === 'Pending' && (
                                                                     <button

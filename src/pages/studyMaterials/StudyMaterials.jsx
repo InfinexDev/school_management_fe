@@ -6,7 +6,7 @@ import Footer from '../../common/Footer';
 import axios from 'axios';
 
 const StudyMaterials = () => {
-  const classes = [
+  const classes = ['LKG', 'UKG',
     'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
     'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10',
     'Class 11', 'Class 12'
@@ -16,6 +16,12 @@ const StudyMaterials = () => {
     'Hindi', 'Physics', 'Chemistry', 'Biology', 'History',
     'Geography', 'Computer Science'
   ];
+
+  const sections = ['A', 'B', 'C', 'D'];
+
+  // Add section state for filtering
+  const [selectedSection, setSelectedSection] = useState('All');
+
 
   const [userRole, setUserRole] = useState('teacher'); // Adjust based on auth context
   const [materials, setMaterials] = useState([]);
@@ -103,6 +109,15 @@ const StudyMaterials = () => {
     fetchData();
   }, []);
 
+  const filteredMaterials = selectedSection === 'All'
+    ? materials
+    : materials.filter(material => material.section === selectedSection);
+
+  // Filter scheduled topics based on selected section
+  const filteredTopics = selectedSection === 'All'
+    ? scheduledTopics
+    : scheduledTopics.filter(topic => topic.section === selectedSection);
+
   // Handle upload material
   const handleUploadMaterial = async (e) => {
     e.preventDefault();
@@ -124,6 +139,7 @@ const StudyMaterials = () => {
       formData.append('subject', e.target.subject.value);
       formData.append('type', e.target.type.value);
       formData.append('title', e.target.title.value);
+      formData.append('section', e.target.section.value);
       formData.append('file', e.target.file.files[0]);
 
       const response = await axios.post('/api/study-materials/upload', formData, {
@@ -188,6 +204,7 @@ const StudyMaterials = () => {
           subject: e.target.subject.value,
           topic: e.target.topic.value,
           date: e.target.date.value,
+          section: e.target.section.value,
         },
         {
           headers: {
@@ -337,6 +354,22 @@ const StudyMaterials = () => {
                         </select>
                       </div>
                       <div>
+                        <label htmlFor="section" className="block text-sm font-medium text-gray-700">
+                          Section
+                        </label>
+                        <select
+                          id="section"
+                          name="section"
+                          className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                          required
+                        >
+                          <option value="" disabled selected>Select section</option>
+                          {sections.map((section) => (
+                            <option key={section} value={section}>{section}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
                         <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
                           Subject
                         </label>
@@ -403,7 +436,7 @@ const StudyMaterials = () => {
                     </form>
                   </div>
 
-                  <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
+                  <div className="mb-6 bg-white p-6 rounded-xl shadow-lg">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Schedule Daily Topic</h2>
                     <form onSubmit={handleScheduleTopic} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
@@ -419,6 +452,22 @@ const StudyMaterials = () => {
                           <option value="" disabled selected>Select class</option>
                           {classes.map((cls) => (
                             <option key={cls} value={cls}>{cls}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label htmlFor="section" className="block text-sm font-medium text-gray-700">
+                          Section
+                        </label>
+                        <select
+                          id="section"
+                          name="section"
+                          className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                          required
+                        >
+                          <option value="" disabled selected>Select section</option>
+                          {sections.map((section) => (
+                            <option key={section} value={section}>{section}</option>
                           ))}
                         </select>
                       </div>
@@ -473,10 +522,27 @@ const StudyMaterials = () => {
                   </div>
                 </>
               )}
-
+              <div className="mb-6 flex justify-end">
+                <div>
+                  <label htmlFor="sectionFilter" className="block text-sm font-medium text-gray-700">
+                    Filter by Section
+                  </label>
+                  <select
+                    id="sectionFilter"
+                    value={selectedSection}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    className="mt-1 w-48 px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                  >
+                    <option value="All">All Sections</option>
+                    {sections.map((section) => (
+                      <option key={section} value={section}>{section}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div className="mb-12 bg-white p-6 rounded-xl shadow-lg">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Study Materials</h2>
-                {materials.length === 0 ? (
+                {filteredMaterials.length === 0 ? (
                   <div className="text-center text-gray-600 py-4">
                     No study materials found.
                   </div>
@@ -486,6 +552,7 @@ const StudyMaterials = () => {
                       <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                         <tr>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Section</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Subject</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Type</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Title</th>
@@ -498,6 +565,7 @@ const StudyMaterials = () => {
                         {materials.map((material) => (
                           <tr key={material.id} className="hover:bg-gray-50 transition-colors duration-200">
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">{material.class}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.section}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{material.subject}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 flex items-center gap-2">
                               {material.type === 'PDF' ? (
@@ -530,7 +598,7 @@ const StudyMaterials = () => {
 
               <div className="bg-white p-6 rounded-xl shadow-lg">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Scheduled Daily Topics</h2>
-                {scheduledTopics.length === 0 ? (
+                {filteredTopics.length === 0 ? (
                   <div className="text-center text-gray-600 py-4">
                     No scheduled topics found.
                   </div>
@@ -540,6 +608,7 @@ const StudyMaterials = () => {
                       <thead className="bg-gradient-to-r from-teal-500 to-teal-700 text-white">
                         <tr>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Class</th>
+                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Section</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Subject</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Topic</th>
                           <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Scheduled Date</th>
@@ -552,6 +621,7 @@ const StudyMaterials = () => {
                             className="hover:bg-gray-50 transition-all duration-200"
                           >
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">{topic.class}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{topic.section}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{topic.subject}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{topic.topic}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
