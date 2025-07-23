@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { HiUser, HiDocumentText, HiChartBar, HiBell, HiCheckCircle, HiUpload, HiPencilAlt, HiUserGroup, HiSpeakerphone, HiCurrencyRupee, HiStar, HiAcademicCap, HiCalendar, HiLightBulb } from 'react-icons/hi';
 
 const DashboardComponent = () => {
-  const userRole = localStorage.getItem('userRole') || 'student'; // Use localStorage for role
+  const userRole = localStorage.getItem('userRole') || 'student'; 
 
   const dashboardContent = {
     student: {
