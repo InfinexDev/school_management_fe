@@ -27,7 +27,7 @@ const Navbar = () => {
               <NavLink
                 to="/home"
                 className={({ isActive }) =>
-                  `hidden md:flex text-white ml-4 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                  `hidden md:flex text-white ml-4 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                   }`
                 }
               >
@@ -42,7 +42,7 @@ const Navbar = () => {
               <NavLink
                 to="/home"
                 className={({ isActive }) =>
-                  `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                  `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                   }`
                 }
               >
@@ -54,7 +54,7 @@ const Navbar = () => {
                 <NavLink
                   to="/"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -63,7 +63,7 @@ const Navbar = () => {
                 <NavLink
                   to="/study-materials"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -72,7 +72,7 @@ const Navbar = () => {
                 <NavLink
                   to="/attendance"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -81,7 +81,7 @@ const Navbar = () => {
                 <NavLink
                   to="/notifications"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -90,7 +90,7 @@ const Navbar = () => {
                 <NavLink
                   to="/fees"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -99,7 +99,7 @@ const Navbar = () => {
                 <NavLink
                   to="/reports"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -108,7 +108,7 @@ const Navbar = () => {
                 <NavLink
                   to="/promotions"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -121,7 +121,7 @@ const Navbar = () => {
                     localStorage.removeItem('userRole');
                     window.location.href = '/home';
                   }}
-                  className="text-white cursor-pointer bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                  className="text-white cursor-pointer bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-800 shadow-md"
                 >
                   Logout
                 </button>
@@ -131,13 +131,13 @@ const Navbar = () => {
                 <div className='flex items-center gap-2'>
                   <NavLink
                     to="/login"
-                    className="text-white bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                    className="text-white bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-800 shadow-md"
                   >
                     Login
                   </NavLink>
                   <NavLink
                     to="/signup"
-                    className="text-white whitespace-nowrap bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+                    className="text-white whitespace-nowrap bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-800 shadow-md"
                   >
                     Sign Up
                   </NavLink>
@@ -188,7 +188,7 @@ const Navbar = () => {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -198,7 +198,7 @@ const Navbar = () => {
             <NavLink
               to="/fees"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -208,7 +208,7 @@ const Navbar = () => {
             <NavLink
               to="/study-materials"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -218,7 +218,7 @@ const Navbar = () => {
             <NavLink
               to="/attendance"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -228,7 +228,7 @@ const Navbar = () => {
             <NavLink
               to="/notifications"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -238,7 +238,7 @@ const Navbar = () => {
             <NavLink
               to="/reports"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -248,7 +248,7 @@ const Navbar = () => {
             <NavLink
               to="/promotions"
               className={({ isActive }) =>
-                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                 }`
               }
               onClick={toggleMenu}
@@ -257,7 +257,7 @@ const Navbar = () => {
             </NavLink>
             <NavLink
               to="/login"
-              className="block text-white bg-teal-700 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-teal-800 shadow-md"
+              className="block text-white bg-teal-700 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform  hover:bg-teal-800 shadow-md"
               onClick={toggleMenu}
             >
               Login
