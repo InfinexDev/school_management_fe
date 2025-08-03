@@ -1,488 +1,472 @@
 import React, { useEffect, useState } from 'react';
-import { HiDocumentDownload, HiChartBar } from 'react-icons/hi';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { HiChartBar, HiDocumentDownload } from 'react-icons/hi';
 import Navbar from '../../common/Navbar';
 import Footer from '../../common/Footer';
-import toast from 'react-hot-toast';
-import axios from 'axios';
+
+const ReportTypes = {
+  ACADEMIC: 'Academic',
+  ATTENDANCE: 'Attendance',
+  SUMMARY: 'Summary',
+  LEAVE: 'Leave',
+  GRADING: 'Grading',
+};
+
+const assessmentTypes = ['Unit Test', 'Mid Term', 'Final Exam'];
+const terms = ['Term 1', 'Term 2', 'Annual'];
+const gradeThresholds = [
+  { grade: 'A', min: 85 },
+  { grade: 'B', min: 70 },
+  { grade: 'C', min: 55 },
+  { grade: 'D', min: 40 },
+  { grade: 'F', min: 0 },
+];
 
 const Reports = () => {
   const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || 'student');
-  const [reportType, setReportType] = useState('Academic');
+  const [reportType, setReportType] = useState(ReportTypes.ACADEMIC);
   const [reports, setReports] = useState([]);
+  const [studentOptions, setStudentOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFormLoading, setIsFormLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-  const [classOptions] = useState([
+  const [subjectMarks, setSubjectMarks] = useState([{ subject: '', marks: '' }]);
+
+  const classOptions = [
     'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6',
     'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
-  ]);
-  const [subjectOptions] = useState([
+  ];
+
+  const subjectOptions = [
     'Mathematics', 'Science', 'English', 'Social Studies', 'Hindi', 'Computer Science',
-  ]);
-  const [studentOptions, setStudentOptions] = useState([]);
+  ];
+
+  const calculateGrade = (marks) => {
+    for (const { grade, min } of gradeThresholds) {
+      if (marks >= min) return grade;
+    }
+    return 'F';
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        const requests = [
-          axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/reports`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+        const [reportsRes, studentsRes] = await Promise.all([
+          axios.get(`/api/reports`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
           }),
-          axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/users/students`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+          axios.get(`/api/users/students`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
           }),
-        ];
+        ]);
 
-        const responses = await Promise.all(requests);
-        const [reportsResponse, studentsResponse] = responses;
-
-        console.log('Reports Response:', JSON.stringify(reportsResponse.data, null, 2));
-        console.log('Students Response:', JSON.stringify(studentsResponse.data, null, 2));
-        setReports(reportsResponse?.data?.reports || []);
-        setStudentOptions(studentsResponse?.data?.students || []);
+        setReports(reportsRes.data.reports);
+        setStudentOptions(studentsRes.data.students);
         setIsLoading(false);
-      } catch (error) {
-        console.error('Fetch data error:', error);
-        console.error('Error response:', JSON.stringify(error.response?.data, null, 2));
-        setError('Failed to fetch data. Please try again later.');
-        toast.error(error.response?.data?.message || 'Failed to fetch data', {
-          style: {
-            background: '#ef4444',
-            color: '#ffffff',
-            fontWeight: '600',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          },
-          duration: 4000,
-        });
+      } catch (err) {
+        setError('Failed to load reports');
+        toast.error(err.response?.data?.message || 'Error fetching data');
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
-  const formatDate = (dateString) => {
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
+  const handleAddSubject = () => {
+    setSubjectMarks([...subjectMarks, { subject: '', marks: '' }]);
   };
 
-  const sortData = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-
-    const sortedReports = [...reports].sort((a, b) => {
-      if (key === 'marks') {
-        return direction === 'asc' ? (a[key] || 0) - (b[key] || 0) : (b[key] || 0) - (a[key] || 0);
-      }
-      if (key === 'date') {
-        return direction === 'asc'
-          ? new Date(a[key]) - new Date(b[key])
-          : new Date(b[key]) - new Date(a[key]);
-      }
-      return direction === 'asc'
-        ? (a[key] || '').localeCompare(b[key] || '')
-        : (b[key] || '').localeCompare(a[key] || '');
-    });
-    setReports(sortedReports);
+  const handleSubjectChange = (index, field, value) => {
+    const updatedMarks = [...subjectMarks];
+    updatedMarks[index][field] = value;
+    setSubjectMarks(updatedMarks);
   };
 
-  const handleGenerateReport = async (e) => {
+  const handleRemoveSubject = (index) => {
+    setSubjectMarks(subjectMarks.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const type = e.target.type.value;
-    const studentId = e.target.student.value;
-    const className = e.target.class.value;
-    const subject = type === 'Academic' ? e.target.subject.value : '';
-    const marks = type === 'Academic' ? parseInt(e.target.marks.value) : '';
-    const attendance = type === 'Attendance' ? e.target.attendance.value : '';
+    const data = new FormData(e.target); // Fixed typo: FormFormData -> FormData
 
-    if (type === 'Academic' && (!subject || !marks)) {
-      toast.error('Subject and marks are required for Academic reports', {
-        style: {
-          background: '#ef4444',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        duration: 4000,
-      });
-      return;
-    }
-    if (type === 'Attendance' && !attendance) {
-      toast.error('Attendance is required for Attendance reports', {
-        style: {
-          background: '#ef4444',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        duration: 4000,
-      });
-      return;
+    // Validate subjectMarks for Academic and Grading reports
+    if (reportType === ReportTypes.ACADEMIC || reportType === ReportTypes.GRADING) {
+      if (!subjectMarks.every(sm => sm.subject && sm.marks && sm.marks >= 0 && sm.marks <= 100)) {
+        toast.error('Please fill all subject fields with valid marks (0-100)');
+        return;
+      }
     }
 
-    const student = studentOptions.find(s => s._id === studentId)?.name || 'Unknown';
-    const confirmAdd = window.confirm(
-      `Generate ${type} report for ${student} in ${className}?`
-    );
-    if (!confirmAdd) {
+    const payload = {
+      type: data.get('type'),
+      studentId: data.get('student'),
+      class: data.get('class'),
+      subjectMarks:
+        reportType === ReportTypes.ACADEMIC || reportType === ReportTypes.GRADING
+          ? subjectMarks.map(sm => ({ subject: sm.subject, marks: parseInt(sm.marks) }))
+          : null,
+      attendance: data.get('attendance') || null,
+      presentDays: data.get('presentDays') ? parseInt(data.get('presentDays')) : null,
+      leaveDays: data.get('leaveDays') ? parseInt(data.get('leaveDays')) : null,
+      leaveReason: data.get('leaveReason') || null,
+      assessmentType: data.get('assessmentType') || null,
+      term: data.get('term') || null,
+      summaryNotes: data.get('summaryNotes') || null,
+      overallGrade:
+        reportType === ReportTypes.GRADING
+          ? calculateGrade(
+            subjectMarks.reduce((sum, sm) => sum + (parseInt(sm.marks) || 0), 0) / subjectMarks.length
+          )
+          : null,
+    };
+
+    // Basic payload validation
+    if (!payload.type || !payload.studentId || !payload.class) {
+      toast.error('Please fill all required fields: Report Type, Student, and Class');
       return;
     }
 
-    setIsFormLoading(true);
-    const toastId = toast.loading('Generating report...', {
-      style: {
-        background: '#0f766e',
-        color: '#ffffff',
-        fontWeight: '600',
-        padding: '12px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      },
-      iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
-    });
-
+    setIsSubmitting(true);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_REACT_APP_API_URL}/api/reports`,
-        {
-          type,
-          studentId,
-          class: className,
-          subject,
-          marks,
-          attendance,
-        },
-        {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
-        }
-      );
-      setReports([...reports, response.data.report]);
+      const res = await axios.post('/api/reports', payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+      });
+      setReports([...reports, res.data.report]);
+      toast.success('Report created successfully');
       e.target.reset();
-      toast.success('Report generated successfully!', {
-        id: toastId,
-        style: {
-          background: '#0f766e',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Generate report error:', error);
-      toast.error(error.response?.data?.message || 'Failed to generate report', {
-        id: toastId,
-        style: {
-          background: '#ef4444',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        duration: 4000,
-      });
+      setSubjectMarks([{ subject: '', marks: '' }]);
+      setReportType(ReportTypes.ACADEMIC); // Reset report type
+    } catch (err) {
+      console.error('API call error:', err.response?.data || err.message);
+      toast.error(err.response?.data?.message || 'Error creating report');
     } finally {
-      setIsFormLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleExportReport = async (reportId) => {
-    const toastId = toast.loading('Preparing report for export...', {
-      style: {
-        background: '#0f766e',
-        color: '#ffffff',
-        fontWeight: '600',
-        padding: '12px 20px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      },
-      iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
-    });
-
+  const handleExport = async (id) => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}/api/reports/export/${reportId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
+      const res = await axios.get(`/api/reports/export/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         responseType: 'blob',
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `report_${reportId}.pdf`);
+      link.setAttribute('download', `report_${id}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
-      toast.success('Report exported as PDF!', {
-        id: toastId,
-        style: {
-          background: '#0f766e',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        iconTheme: { primary: '#ffffff', secondary: '#0f766e' },
-        duration: 3000,
-      });
-    } catch (error) {
-      console.error('Export report error:', error);
-      toast.error(error.response?.data?.message || 'Failed to export report', {
-        id: toastId,
-        style: {
-          background: '#ef4444',
-          color: '#ffffff',
-          fontWeight: '600',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        },
-        duration: 4000,
-      });
+      toast.success('Report downloaded');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Export failed');
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-10 text-center drop-shadow-md">
-            Reports & Performance Tracking
-          </h1>
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold text-gray-900 text-center mb-10">Student Report Management</h1>
 
-          {isLoading ? (
-            <div className='h-[60vh] flex items-center justify-center'>
-              <div
-                class="w-32 aspect-square rounded-full relative flex justify-center items-center animate-[spin_3s_linear_infinite] z-40 bg-[conic-gradient(white_0deg,white_300deg,transparent_270deg,transparent_360deg)] before:animate-[spin_2s_linear_infinite] before:absolute before:w-[60%] before:aspect-square before:rounded-full before:z-[80] before:bg-[conic-gradient(white_0deg,white_270deg,transparent_180deg,transparent_360deg)] after:absolute after:w-3/4 after:aspect-square after:rounded-full after:z-[60] after:animate-[spin_3s_linear_infinite] after:bg-[conic-gradient(#065f46_0deg,#065f46_180deg,transparent_180deg,transparent_360deg)]"
-              >
-                <span
-                  class="absolute w-[85%] aspect-square rounded-full z-[60] animate-[spin_5s_linear_infinite] bg-[conic-gradient(#34d399_0deg,#34d399_180deg,transparent_180deg,transparent_360deg)]"
-                >
-                </span>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="text-center bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-md">
-              <p className="text-lg">{error}</p>
-            </div>
-          ) : (
-            <>
-              {(userRole === 'admin' || userRole === 'teacher') && (
-                <div className="mb-12 bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
-                  <h2 className="text-2xl font-bold mb-6">Generate Report</h2>
-                  <form onSubmit={handleGenerateReport} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-                        Report Type
-                      </label>
-                      <select
-                        id="type"
-                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                        required
-                        disabled={isFormLoading}
-                        onChange={(e) => setReportType(e.target.value)}
-                      >
-                        <option value="Academic">Academic</option>
-                        <option value="Attendance">Attendance</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="student" className="block text-sm font-medium text-gray-700">
-                        Student Name
-                      </label>
-                      <select
-                        id="student"
-                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                        required
-                        disabled={isFormLoading}
-                      >
-                        <option value="">Select Student</option>
-                        {studentOptions.map((student) => (
-                          <option key={student._id} value={student._id}>
-                            {student.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="class" className="block text-sm font-medium text-gray-700">
-                        Class
-                      </label>
-                      <select
-                        id="class"
-                        className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                        required
-                        disabled={isFormLoading}
-                      >
-                        <option value="">Select Class</option>
-                        {classOptions.map((className) => (
-                          <option key={className} value={className}>
-                            {className}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    {reportType === 'Academic' && (
-                      <>
-                        <div>
-                          <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
-                            Subject
-                          </label>
-                          <select
-                            id="subject"
-                            className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                            required
-                            disabled={isFormLoading}
-                          >
-                            <option value="">Select Subject</option>
-                            {subjectOptions.map((subject) => (
-                              <option key={subject} value={subject}>
-                                {subject}
-                              </option>
-                            ))}
-                          </select>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+          </div>
+        ) : error ? (
+          <p className="text-center text-red-600 font-medium bg-red-100 p-4 rounded-lg">{error}</p>
+        ) : (
+          <>
+            {(userRole === 'admin' || userRole === 'teacher') && (
+              <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
+                <h2 className="text-2xl font-semibold text-gray-800 mb-6">Create New Report</h2>
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Report Type</label>
+                    <select
+                      name="type"
+                      onChange={(e) => setReportType(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                      required
+                    >
+                      {Object.values(ReportTypes).map((type) => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Student</label>
+                    <select
+                      name="student"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                      required
+                    >
+                      <option value="">Select Student</option>
+                      {studentOptions.map((s) => (
+                        <option key={s._id} value={s._id}>{s.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
+                    <select
+                      name="class"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                      required
+                    >
+                      <option value="">Select Class</option>
+                      {classOptions.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {(reportType === ReportTypes.ACADEMIC || reportType === ReportTypes.GRADING) && (
+                    <>
+                      {subjectMarks.map((sm, index) => (
+                        <div key={index} className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                            <select
+                              value={sm.subject}
+                              onChange={(e) => handleSubjectChange(index, 'subject', e.target.value)}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                              required
+                            >
+                              <option value="">Select Subject</option>
+                              {subjectOptions.map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Marks</label>
+                            <input
+                              type="number"
+                              value={sm.marks}
+                              onChange={(e) => handleSubjectChange(index, 'marks', e.target.value)}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                              placeholder="Enter Marks (0-100)"
+                              min="0"
+                              max="100"
+                              required
+                            />
+                          </div>
+                          {index > 0 && (
+                            <div className="flex items-end">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSubject(index)}
+                                className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <label htmlFor="marks" className="block text-sm font-medium text-gray-700">
-                            Marks
-                          </label>
-                          <input
-                            type="number"
-                            id="marks"
-                            className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                            placeholder="Enter marks"
-                            min="0"
-                            max="100"
-                            required
-                            disabled={isFormLoading}
-                          />
-                        </div>
-                      </>
-                    )}
-                    {reportType === 'Attendance' && (
+                      ))}
+                      <div className="md:col-span-2">
+                        <button
+                          type="button"
+                          onClick={handleAddSubject}
+                          className="bg-teal-500 text-white py-2 px-4 rounded-lg hover:bg-teal-600 transition duration-200"
+                        >
+                          Add Subject
+                        </button>
+                      </div>
+
                       <div>
-                        <label htmlFor="attendance" className="block text-sm font-medium text-gray-700">
-                          Attendance %
-                        </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Assessment Type</label>
+                        <select
+                          name="assessmentType"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          required
+                        >
+                          <option value="">Select Assessment Type</option>
+                          {assessmentTypes.map((a) => (
+                            <option key={a} value={a}>{a}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
+                        <select
+                          name="term"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          required
+                        >
+                          <option value="">Select Term</option>
+                          {terms.map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === ReportTypes.ATTENDANCE && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Attendance (%)</label>
                         <input
                           type="text"
-                          id="attendance"
-                          className="mt-1 w-full px-4 py-3 bg-gray-50 border outline-none border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
-                          placeholder="Enter attendance (e.g., 90%)"
+                          name="attendance"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Enter Attendance % (e.g., 95%)"
                           required
-                          disabled={isFormLoading}
                         />
                       </div>
-                    )}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Present Days</label>
+                        <input
+                          type="number"
+                          name="presentDays"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Enter Present Days"
+                          min="0"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === ReportTypes.LEAVE && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Leave Days</label>
+                        <input
+                          type="number"
+                          name="leaveDays"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Enter Leave Days"
+                          min="0"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Leave Reason</label>
+                        <input
+                          type="text"
+                          name="leaveReason"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                          placeholder="Enter Leave Reason"
+                          required
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {reportType === ReportTypes.SUMMARY && (
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Summary Notes</label>
+                      <textarea
+                        name="summaryNotes"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 outline-none focus:ring-teal-500 focus:border-teal-500"
+                        placeholder="Enter Summary Notes"
+                        rows="4"
+                      />
+                    </div>
+                  )}
+
+                  <div className="md:col-span-2">
                     <button
                       type="submit"
-                      className={`col-span-1 sm:col-span-2 cursor-pointer bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform shadow-md ${isFormLoading ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                      disabled={isFormLoading}
+                      className="w-full bg-teal-600 cursor-pointer outline-none text-white py-3 px-4 rounded-lg hover:bg-teal-700 transition duration-200 flex items-center justify-center"
+                      disabled={isSubmitting}
                     >
-                      <HiChartBar className="h-5 w-5 inline mr-2" />
-                      {isFormLoading ? 'Generating...' : 'Generate Report'}
+                      <HiChartBar className="mr-2" />
+                      {isSubmitting ? 'Submitting...' : 'Submit Report'}
                     </button>
-                  </form>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6">Report History</h2>
+              {reports.length === 0 ? (
+                <p className="text-gray-500 text-center">No reports found.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full whitespace-nowrap text-sm text-left text-gray-700">
+                    <thead className="text-xs uppercase bg-teal-50 text-gray-700">
+                      <tr>
+                        <th className="px-6 py-3">Date</th>
+                        <th className="px-6 py-3">Student</th>
+                        <th className="px-6 py-3">Type</th>
+                        <th className="px-6 py-3">Class</th>
+                        <th className="px-6 py-3">Subject/Marks</th>
+                        <th className="px-6 py-3">Overall Grade</th>
+                        <th className="px-6 py-3">Attendance</th>
+                        <th className="px-6 py-3">Present Days</th>
+                        <th className="px-6 py-3">Leave Days</th>
+                        <th className="px-6 py-3">Leave Reason</th>
+                        <th className="px-6 py-3">Assessment</th>
+                        <th className="px-6 py-3">Term</th>
+                        <th className="px-6 py-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reports.map((r) => (
+                        <tr key={r.id} className="border-b hover:bg-teal-50 transition duration-150">
+                          <td className="px-6 py-4">{new Date(r.date).toLocaleDateString()}</td>
+                          <td className="px-6 py-4">{r.student}</td>
+                          <td className="px-6 py-4">{r.type}</td>
+                          <td className="px-6 py-4">{r.class}</td>
+                          <td className="px-6 py-4 align-top">
+                            {r.subjectMarks && r.subjectMarks.length > 0 ? (
+                              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                                {r.subjectMarks.map((sm, index) => (
+                                  <span
+                                    key={index}
+                                    className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${sm.marks >= 85
+                                        ? 'bg-green-100 text-green-800'
+                                        : sm.marks >= 70
+                                          ? 'bg-blue-100 text-blue-800'
+                                          : sm.marks >= 55
+                                            ? 'bg-yellow-100 text-yellow-800'
+                                            : sm.marks >= 40
+                                              ? 'bg-orange-100 text-orange-800'
+                                              : 'bg-red-100 text-red-800'
+                                      }`}
+                                  >
+                                    {`${sm.subject}: ${sm.marks}`}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-gray-500">-</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">{r.overallGrade || '-'}</td>
+                          <td className="px-6 py-4">{r.attendance || '-'}</td>
+                          <td className="px-6 py-4">{r.presentDays || '-'}</td>
+                          <td className="px-6 py-4">{r.leaveDays || '-'}</td>
+                          <td className="px-6 py-4">{r.leaveReason || '-'}</td>
+                          <td className="px-6 py-4">{r.assessmentType || '-'}</td>
+                          <td className="px-6 py-4">{r.term || '-'}</td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => handleExport(r.id)}
+                              className="flex items-center text-white p-2 rounded-lg bg-teal-600 cursor-pointer transition duration-150"
+                            >
+                              <HiDocumentDownload className="mr-1" /> Export
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
-
-              <div className="bg-white p-8 rounded-2xl shadow-xl border border-teal-100">
-                <h2 className="text-2xl font-bold  mb-6">Report History</h2>
-                {reports.length === 0 ? (
-                  <div className="text-center text-gray-600 py-6">
-                    No reports found.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 shadow-xl rounded-xl overflow-hidden">
-                      <thead className="bg-gradient-to-r from-teal-600 to-teal-500 text-white">
-                        <tr>
-                          {[
-                            { label: 'Date', key: 'date' },
-                            { label: 'Type', key: 'type' },
-                            { label: 'Student', key: 'student' },
-                            { label: 'Class', key: 'class' },
-                            { label: 'Subject', key: 'subject' },
-                            { label: 'Marks', key: 'marks' },
-                            { label: 'Attendance', key: 'attendance' }
-                          ].map(({ label, key }) => (
-                            <th
-                              key={key}
-                              className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer"
-                              onClick={() => sortData(key)}
-                            >
-                              {label} {sortConfig.key === key && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                            </th>
-                          ))}
-                          <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Action</th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-gray-100 bg-white">
-                        {reports.map((report) => (
-                          <tr key={report.id} className="hover:bg-teal-50 transition-all duration-200">
-                            <td className="px-6 py-4 text-sm text-gray-800 font-medium">{formatDate(report.date)}</td>
-
-                            <td className="px-6 py-4">
-                              <span
-                                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold shadow-sm
-              ${report.type === 'Academic'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-purple-100 text-purple-800'
-                                  }`}
-                              >
-                                {report.type}
-                              </span>
-                            </td>
-
-                            <td className="px-6 py-4 text-sm text-gray-700">{report.student}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{report.class}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {report.type === 'Academic' ? report.subject || '-' : '-'}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {report.type === 'Academic' ? report.marks || '-' : '-'}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {report.type === 'Attendance' ? report.attendance || '-' : '-'}
-                            </td>
-
-                            <td className="px-6 py-4">
-                              <button
-                                onClick={() => handleExportReport(report.id)}
-                                className="inline-flex items-center bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-bold px-4 py-2 rounded-md shadow-md hover:scale-102 cursor-pointer hover:shadow-lg transition-all duration-300"
-                              >
-                                <HiDocumentDownload className="w-5 h-5 mr-2" />
-                                Export
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
       <Footer />
     </div>

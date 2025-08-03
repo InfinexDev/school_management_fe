@@ -14,6 +14,10 @@ const Profile = () => {
         email: '',
         phone: '',
         address: '',
+        role: '',
+        profilePicture: '',
+        parentEmail: '',
+        isActive: false,
     });
 
     useEffect(() => {
@@ -22,13 +26,17 @@ const Profile = () => {
                 const response = await axios.get('/api/auth/me', {
                     headers: { Authorization: `Bearer ${getAccessToken()}` },
                 });
+
                 setUserData({
                     id: response.data.id,
                     name: response.data.name,
                     email: response.data.email,
                     phone: response.data.phone || '',
                     address: response.data.address || '',
-                    role: response.data.role,
+                    role: response.data.role || '',
+                    profilePicture: response.data.profilePicture || '',
+                    parentEmail: response.data.parentEmail || '',
+                    isActive: response.data.isActive || false,
                 });
             } catch (error) {
                 toast.error('Failed to load profile.', { duration: 3000 });
@@ -36,7 +44,6 @@ const Profile = () => {
         };
         fetchProfile();
     }, []);
-
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -54,9 +61,17 @@ const Profile = () => {
             if (!userData?.name || !userData?.email || !userData?.phone || !userData?.address) {
                 throw new Error('Please fill in all fields.');
             }
-            await axios.put(`/api/auth/${userData?.id}`, userData, {
+
+            await axios.put(`/api/auth/${userData?.id}`, {
+                name: userData.name,
+                email: userData.email,
+                phone: userData.phone,
+                address: userData.address,
+                parentEmail: userData.role === 'student' ? userData.parentEmail : undefined,
+            }, {
                 headers: { Authorization: `Bearer ${getAccessToken()}` },
             });
+
             toast.success('Profile updated successfully!', {
                 id: toastId,
                 duration: 3000,
@@ -99,7 +114,7 @@ const Profile = () => {
                                     name="name"
                                     value={userData.name}
                                     onChange={handleInputChange}
-                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                    className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500"
                                 />
                             ) : (
                                 <p className="mt-1 text-lg text-gray-900">{userData.name}</p>
@@ -113,7 +128,7 @@ const Profile = () => {
                                     name="email"
                                     value={userData.email}
                                     onChange={handleInputChange}
-                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                    className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500"
                                 />
                             ) : (
                                 <p className="mt-1 text-lg text-gray-900 flex items-center">
@@ -121,6 +136,7 @@ const Profile = () => {
                                 </p>
                             )}
                         </div>
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Phone</label>
                             {isEditing ? (
@@ -129,7 +145,7 @@ const Profile = () => {
                                     name="phone"
                                     value={userData.phone}
                                     onChange={handleInputChange}
-                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                    className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500"
                                 />
                             ) : (
                                 <p className="mt-1 text-lg text-gray-900 flex items-center">
@@ -143,14 +159,37 @@ const Profile = () => {
                             {isEditing ? (
                                 <textarea
                                     name="address"
-                                    draggable="false"
                                     value={userData.address}
                                     onChange={handleInputChange}
-                                    className="mt-1 w-full p-3 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                                    className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500"
                                 />
                             ) : (
                                 <p className="mt-1 text-lg text-gray-900">{userData.address}</p>
                             )}
+                        </div>
+
+                        {userData.role === 'student' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Parent Email</label>
+                                {isEditing ? (
+                                    <input
+                                        type="email"
+                                        name="parentEmail"
+                                        value={userData.parentEmail}
+                                        onChange={handleInputChange}
+                                        className="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-teal-500"
+                                    />
+                                ) : (
+                                    <p className="mt-1 text-lg text-gray-900">{userData.parentEmail}</p>
+                                )}
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Account Status</label>
+                            <p className="mt-1 text-lg font-medium text-gray-900">
+                                {userData.isActive ? '✅ Active' : '❌ Inactive'}
+                            </p>
                         </div>
                     </div>
 
@@ -165,20 +204,6 @@ const Profile = () => {
                             </button>
                         </div>
                     )}
-
-                    <div className="mt-12">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-center space-x-3">
-                                <HiCheckCircle className="h-6 w-6 text-teal-600" />
-                                <p className="text-sm text-gray-600">Profile updated on 10 Mar 2025</p>
-                            </li>
-                            <li className="flex items-center space-x-3">
-                                <HiCheckCircle className="h-6 w-6 text-teal-600" />
-                                <p className="text-sm text-gray-600">Joined class 10th Grade on 01 Jan 2025</p>
-                            </li>
-                        </ul>
-                    </div>
                 </div>
             </div>
             <Footer />
