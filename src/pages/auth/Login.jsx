@@ -29,7 +29,14 @@ const Login = () => {
             });
             navigate('/home');
         } catch (error) {
-            const errorMessage = error?.response?.data?.message || error.message || 'Login failed.';
+             const statusCode = error?.response?.status;
+            let errorMessage = error?.response?.data?.message || error.message || 'Login failed.';
+
+            // Check for unapproved student
+            if (statusCode === 403) {
+                errorMessage = 'Your account is not yet approved by the admin.';
+            }
+
             toast.error(errorMessage, {
                 id: toastId,
                 duration: 3000,

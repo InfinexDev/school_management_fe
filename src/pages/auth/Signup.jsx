@@ -206,6 +206,8 @@ const Signup = () => {
                 >
                   <option value="">Select Class</option>
                   <option value="Class 1">Class 1</option>
+                  <option value="Class 1">Class 1</option>
+                  <option value="Class 1">Class 1</option>
                   <option value="Class 2">Class 2</option>
                   <option value="Class 3">Class 3</option>
                   <option value="Class 4">Class 4</option>

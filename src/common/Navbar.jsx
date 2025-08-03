@@ -19,11 +19,11 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-  document.body.style.overflow = isOpen ? 'hidden' : 'auto';
-  return () => {
-    document.body.style.overflow = 'auto';
-  };
-}, [isOpen]);
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
 
 
   return (
@@ -39,8 +39,7 @@ const Navbar = () => {
               <NavLink
                 to="/home"
                 className={({ isActive }) =>
-                  `hidden md:flex text-white ml-4 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                    isActive ? 'bg-teal-700 shadow-md' : ''
+                  `hidden md:flex text-white ml-4 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                   }`
                 }
               >
@@ -50,14 +49,13 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-2">
             {token && (
               <>
                 <NavLink
                   to="/home"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -66,8 +64,7 @@ const Navbar = () => {
                 <NavLink
                   to="/"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -76,8 +73,7 @@ const Navbar = () => {
                 <NavLink
                   to="/study-materials"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -86,8 +82,7 @@ const Navbar = () => {
                 <NavLink
                   to="/attendance"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -96,8 +91,7 @@ const Navbar = () => {
                 <NavLink
                   to="/notifications"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -106,8 +100,7 @@ const Navbar = () => {
                 <NavLink
                   to="/fees"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -116,8 +109,7 @@ const Navbar = () => {
                 <NavLink
                   to="/reports"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
@@ -126,13 +118,24 @@ const Navbar = () => {
                 <NavLink
                   to="/promotions"
                   className={({ isActive }) =>
-                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-                      isActive ? 'bg-teal-700 shadow-md' : ''
+                    `text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
                     }`
                   }
                 >
                   Promotions
                 </NavLink>
+                {userRole === 'admin' && (
+                  <NavLink
+                    to="/admin/approvals"
+                    className={({ isActive }) =>
+                      `text-white px-4 py-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
+                      }`
+                    }
+                  >
+                    Manage Students
+                  </NavLink>
+                )}
+
                 <button
                   onClick={handleLogout}
                   className="text-white cursor-pointer bg-teal-700 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-800 shadow-md"
@@ -161,92 +164,94 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Toggle Button */}
-         <div className="md:hidden flex items-center">
-  <button
-    onClick={toggleMenu}
-    className="text-white focus:outline-none focus:ring-2 focus:ring-teal-300 p-2 rounded-md transition-transform duration-300 ease-in-out"
-    aria-label="Toggle menu"
-    aria-expanded={isOpen}
-    aria-controls="mobile-menu"
-  >
-    <svg
-      className="h-7 w-7 transform transition-transform duration-300"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {isOpen ? (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-      ) : (
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-      )}
-    </svg>
-  </button>
-</div>
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={toggleMenu}
+              className="text-white focus:outline-none focus:ring-2 focus:ring-teal-300 p-2 rounded-md transition-transform duration-300 ease-in-out"
+              aria-label="Toggle menu"
+              aria-expanded={isOpen}
+              aria-controls="mobile-menu"
+            >
+              <svg
+                className="h-7 w-7 transform transition-transform duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {isOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
 
         </div>
       </div>
 
       {/* Mobile Menu Content */}
-     {isOpen && (
-  <div id="mobile-menu" className="md:hidden bg-teal-600 shadow-lg px-4 pt-4 pb-6">
-    {token ? (
-      <>
-        <NavLink to="/" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/fees" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Fees
-        </NavLink>
-        <NavLink to="/study-materials" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Study Materials
-        </NavLink>
-        <NavLink to="/attendance" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Attendance
-        </NavLink>
-        <NavLink to="/notifications" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Notifications
-        </NavLink>
-        <NavLink to="/reports" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Reports
-        </NavLink>
-        <NavLink to="/promotions" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Promotions
-        </NavLink>
-        <button
-          onClick={() => {
-            toggleMenu();
-            handleLogout();
-          }}
-          className="w-full mt-2 text-white bg-teal-700 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-800 shadow-md"
-        >
-          Logout
-        </button>
-      </>
-    ) : (
-      <>
-        <NavLink to="/home" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Home
-        </NavLink>
-        <NavLink to="/login" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Login
-        </NavLink>
-        <NavLink to="/signup" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
-          Sign Up
-        </NavLink>
-      </>
-    )}
-  </div>
-)}
+      {isOpen && (
+        <div id="mobile-menu" className="md:hidden bg-teal-600 shadow-lg px-4 pb-6 h-[90vh] overflow-y-auto">
+          {token ? (
+            <>
+              <NavLink to="/" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Dashboard
+              </NavLink>
+              <NavLink to="/fees" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Fees
+              </NavLink>
+              <NavLink to="/study-materials" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Study Materials
+              </NavLink>
+              <NavLink to="/attendance" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Attendance
+              </NavLink>
+              <NavLink to="/notifications" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Notifications
+              </NavLink>
+              <NavLink to="/reports" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Reports
+              </NavLink>
+              <NavLink to="/promotions" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Promotions
+              </NavLink>
+              <NavLink to="/admin/approvals" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Manage Students
+              </NavLink>
+              <button
+                onClick={() => {
+                  toggleMenu();
+                  handleLogout();
+                }}
+                className="w-full mt-2 text-white bg-teal-700 px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-800 shadow-md"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/home" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Home
+              </NavLink>
+              <NavLink to="/login" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Login
+              </NavLink>
+              <NavLink to="/signup" className={mobileLinkClass} onClick={() => { window.scrollTo(0, 0); toggleMenu(); }}>
+                Sign Up
+              </NavLink>
+            </>
+          )}
+        </div>
+      )}
     </nav>
   );
 };
 
 // Helper class for mobile menu links
 const mobileLinkClass = ({ isActive }) =>
-  `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${
-    isActive ? 'bg-teal-700 shadow-md' : ''
+  `block text-white px-4 py-3 rounded-lg text-base font-semibold transition-all duration-300 ease-in-out transform hover:bg-teal-700 ${isActive ? 'bg-teal-700 shadow-md' : ''
   }`;
 
 export default Navbar;

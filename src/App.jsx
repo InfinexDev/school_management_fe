@@ -11,6 +11,7 @@ import Reports from './pages/reports/Reports';
 import Promotions from './pages/promotions/Promotions';
 import Home from './pages/home/Home';
 import ProtectedRoute from './protectedRoute/ProtectedRoute';
+import StudentApprovals from './components/StudentApprovals';
 
 
 const App = () => {
@@ -103,6 +104,15 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/admin/approvals"
+  element={
+    <ProtectedRoute isProtected allowedRoles={['admin']}>
+      <StudentApprovals />
+    </ProtectedRoute>
+  }
+/>
+
       </Routes>
     </BrowserRouter>
   );
