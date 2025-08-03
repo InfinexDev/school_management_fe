@@ -131,7 +131,7 @@ const DashboardComponent = () => {
 
       <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Dashboard Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${userRole === 'admin' ? '3' : '4'} gap-6 mb-12`}>
           {cards.map((card, index) => (
             <NavLink
               key={index}

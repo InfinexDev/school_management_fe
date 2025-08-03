@@ -168,7 +168,7 @@ const Notifications = () => {
                       >
                         <option value="SMS">SMS</option>
                         <option value="Email">Email</option>
-                        <option value="WhatsApp">WhatsApp</option>
+                        {/* <option value="WhatsApp">WhatsApp</option > */}
                       </select>
                     </div>
                     <div>
