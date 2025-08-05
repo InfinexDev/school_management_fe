@@ -3,6 +3,8 @@ import toast from 'react-hot-toast';
 import { NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { setAuthTokens } from '../../utils/auth';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
+
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -13,6 +15,7 @@ const Signup = () => {
   const [address, setAddress] = useState('');
   const [className, setClassName] = useState('');
   const [parentEmail, setParentEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -121,20 +124,27 @@ const Signup = () => {
               required
             />
           </div>
-          <div>
+          <div className="relative">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all duration-300"
+              className="mt-1 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none transition-all duration-300 pr-12"
               placeholder="Create a password"
               required
             />
+            <span
+              className="absolute right-4 top-10 text-gray-500 cursor-pointer"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
+            </span>
           </div>
+
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
               Phone

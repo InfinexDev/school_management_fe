@@ -12,6 +12,7 @@ import Promotions from './pages/promotions/Promotions';
 import Home from './pages/home/Home';
 import ProtectedRoute from './protectedRoute/ProtectedRoute';
 import StudentApprovals from './components/StudentApprovals';
+import ResetPassword from './pages/auth/ResetPassword';
 
 
 const App = () => {
@@ -38,6 +39,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Protected routes (require login) */}
         <Route

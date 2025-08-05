@@ -108,7 +108,7 @@ const Footer = () => {
                   href="mailto:info@infinextechnologies.com"
                   className="hover:text-teal-200 transition-colors duration-300"
                 >
-                  Email: info@infinextechnologies.com
+                  Email: admin@pathshalaschool.in
                 </a>
               </li>
               <li>
@@ -116,7 +116,7 @@ const Footer = () => {
                   href="tel:+919785228992"
                   className="hover:text-teal-200 transition-colors duration-300"
                 >
-                  Phone: +91 9785228992
+                  Phone: +91 9950006502 ,9257576502
                 </a>
               </li>
               <li>
@@ -124,7 +124,7 @@ const Footer = () => {
                   href="https://www.infinextechnologies.com"
                   className="hover:text-teal-200 transition-colors duration-300"
                 >
-                  Website: www.infinextechnologies.com
+                  Website: https://pathshalaschool.in
                 </a>
               </li>
               <li className="flex space-x-4 mt-4">

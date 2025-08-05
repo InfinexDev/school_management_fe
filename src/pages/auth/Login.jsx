@@ -3,11 +3,17 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { setAuthTokens } from '../../utils/auth';
+import { HiEye, HiEyeOff } from 'react-icons/hi';
+import ForgotPassword from './ForgotPassword';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+const [forgotEmail, setForgotEmail] = useState('');
+
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -29,7 +35,7 @@ const Login = () => {
             });
             navigate('/home');
         } catch (error) {
-             const statusCode = error?.response?.status;
+            const statusCode = error?.response?.status;
             let errorMessage = error?.response?.data?.message || error.message || 'Login failed.';
 
             // Check for unapproved student
@@ -44,7 +50,6 @@ const Login = () => {
             setError(errorMessage);
         }
     };
-
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -73,20 +78,27 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <div className="mb-6">
+                    <div className="relative mb-6">
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                             Password
                         </label>
                         <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             id="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300"
+                            className="mt-1 w-full px-4 py-2 focus:outline-none border border-gray-300 rounded-lg focus:ring-teal-500 focus:ring-1 focus:border-teal-500 transition-all duration-300 pr-12"
                             placeholder="Enter your password"
                             required
                         />
+                        <span
+                            className="absolute right-4 top-10 text-gray-500 cursor-pointer"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                            {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
+                        </span>
                     </div>
+
                     <button
                         type="submit"
                         className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition-all duration-300 transform cursor-pointer"
@@ -100,9 +112,22 @@ const Login = () => {
                         <NavLink to="/signup" className="text-teal-600 hover:text-teal-800 font-semibold">
                             Sign Up
                         </NavLink>
+                        <div className="mt-2 text-center">
+  <p className="text-sm text-gray-600">
+    Forgot your password?{' '}
+    <button
+      type="button"
+      onClick={() => setShowForgotPassword(true)}
+      className="text-teal-600 hover:text-teal-800 cursor-pointer font-semibold"
+    >
+      Reset Password
+    </button>
+  </p>
+</div>
                     </p>
                 </div>
             </div>
+            <ForgotPassword isOpen={showForgotPassword} onClose={() => setShowForgotPassword(false)} />
         </div>
     );
 };
